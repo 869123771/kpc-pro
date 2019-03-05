@@ -1,0 +1,43 @@
+{
+  "name": "kpc-pro",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "test:unit": "vue-cli-service test:unit"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "babel-eslint": "^10.0.1",
+    "bootstrap-scss": "^4.3.1",
+    "font-awesome": "^4.7.0",
+    "purgecss-webpack-plugin": "^1.4.0",
+    "qs": "^6.6.0",
+    "sweetalert2": "^8.2.6",
+    "uglifyjs-webpack-plugin": "^2.1.2",
+    "vue": "^2.6.6",
+    "vue-echarts": "^4.0.1",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1",
+    "webpack-oss": "^2.0.8"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.4.0",
+    "@vue/cli-plugin-eslint": "^3.4.0",
+    "@vue/cli-plugin-unit-mocha": "^3.4.0",
+    "@vue/cli-service": "^3.4.0",
+    "@vue/test-utils": "^1.0.0-beta.20",
+    "chai": "^4.1.2",
+    "compression-webpack-plugin": "^2.0.0",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "glob-all": "^3.1.0",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "node-sass": "^4.11.0",
+    "sass-loader": "^7.1.0",
+    "vue-template-compiler": "^2.5.21"
+  }
+}
