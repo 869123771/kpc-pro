@@ -123,6 +123,7 @@ module.exports = {
             .set("assets", resolve("src/assets"))
             .set("components", resolve("src/components"))
             .set("kpc", 'kpc/@css')
+            .set("intact$", 'intact-vue')
 
         // 打包分析
         if (process.env.IS_ANALYZ) {

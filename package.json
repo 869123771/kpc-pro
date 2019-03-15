@@ -13,15 +13,13 @@
     "babel-eslint": "^10.0.1",
     "bootstrap-scss": "^4.3.1",
     "font-awesome": "^4.7.0",
-    "purgecss-webpack-plugin": "^1.4.0",
+    "kpc": "^0.8.4",
     "qs": "^6.6.0",
     "sweetalert2": "^8.2.6",
-    "uglifyjs-webpack-plugin": "^2.1.2",
     "vue": "^2.6.6",
     "vue-echarts": "^4.0.1",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1",
-    "webpack-oss": "^2.0.8"
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",
@@ -29,6 +27,7 @@
     "@vue/cli-plugin-unit-mocha": "^3.4.0",
     "@vue/cli-service": "^3.4.0",
     "@vue/test-utils": "^1.0.0-beta.20",
+    "babel-types": "^6.26.0",
     "chai": "^4.1.2",
     "compression-webpack-plugin": "^2.0.0",
     "eslint": "^5.8.0",
@@ -37,7 +36,12 @@
     "less": "^3.0.4",
     "less-loader": "^4.1.0",
     "node-sass": "^4.11.0",
+    "purgecss-webpack-plugin": "^1.4.0",
     "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.5.21"
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "uglifyjs-webpack-plugin": "^2.1.2",
+    "vue-template-compiler": "^2.5.21",
+    "webpack-oss": "^2.0.8"
   }
 }
