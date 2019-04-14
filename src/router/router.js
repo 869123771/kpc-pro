@@ -1,4 +1,4 @@
-
+import Layout from '@/views/Layout'
 export const index = [{
     path: '/login',
     name: 'login',
@@ -6,14 +6,14 @@ export const index = [{
         title: 'Login - 登录'
     },
     component: resolve => {
-        require(['@/views/login'], resolve);
+        require(['@/views/login/Login'], resolve);
     },
 },
 
 ]
 
 export const layout = [
-    /*{
+    {
         path: '/',
         redirect: '/home',
         component: Layout,
@@ -25,13 +25,13 @@ export const layout = [
                     title: '首頁',
                     icon: 'icon-home',
                 },
-                component: () => import('@/views/Home'),
+                component: () => import('@/views/home/Home'),
             },
         ]
-    },*/
+    },
 
 ]
 
 export const routers = [
-    ...index
+    ...index,//...layout
 ]

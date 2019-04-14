@@ -1,8 +1,8 @@
 import user from './api/user'
+import app from './api/app'
 
 const apiList = {
-  ...user,
-  menu_trees: 'v1/admin/core/menu/trees',
-  menu_lists: '/v1/admin/core/menu/lists'
+    ...user,
+    ...app
 }
 export default apiList

@@ -193,12 +193,13 @@ module.exports = {
         // },
         open: IS_PROD,
         host: "localhost",
-        port: 8088,
+        port: 8080,
         https: false,
         hotOnly: true,
         proxy: {
-            "/api": {
-                target: process.env.VUE_APP_BASE_API || "http://127.0.0.1:8080",
+            "/": {
+                ws : false,
+                target: process.env.VUE_APP_BASE_API || "http://111.230.157.133:9527",
                 changeOrigin: true,
             }
         },

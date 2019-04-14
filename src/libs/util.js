@@ -17,9 +17,9 @@ export const getToken = () => {
 }
 
 export const localSave = (key, value) => {
-    localStorage.setItem(key, value)
+    localStorage.setItem(key, JSON.stringify(value))
 }
 
 export const localRead = (key) => {
-    return localStorage.getItem(key) || ''
+   return JSON.parse(localStorage.getItem(key)) || {}
 }

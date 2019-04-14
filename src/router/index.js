@@ -1,9 +1,16 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import {routers} from './router'
-import {store} from '@/store'
+import {store} from '@/store/index'
 import {constant} from '@/libs'
-import { setToken, getToken} from '@/libs/util'
+import {setToken, getToken, localSave, localRead} from '@/libs/util'
+
+import MenuView from '@/views/common/MenuView'
+import PageView from '@/views/common/PageView'
+import LoginView from '@/views/login/Login'
+import EmptyPageView from '@/views/common/EmptyPageView'
+import HomePageView from '@/views/home/Home'
+import Layout from '@/views/Layout'
 
 Vue.use(Router)
 
@@ -11,39 +18,86 @@ const router = new Router({
     //mode: 'history',
     routes: routers
 })
-const {config: {loginName,homeName}} = constant
+const {config: {loginName, homeName}} = constant
+const whiteList = ['/login']
+let asyncRouter = []
+
 router.beforeEach((to, from, next) => {
     debugger;
     const token = getToken()
-    if (!token && to.name !== loginName) {
-        // 未登录且要跳转的页面不是登录页
-        next({
-            name: loginName // 跳转到登录页
-        })
-    } else if (!token && to.name === loginName) {
-        // 未登陆且要跳转的页面是登录页
-        next() // 跳转
-    } else if (token && to.name === loginName) {
-        // 已登录且要跳转的页面是登录页
-        next({
-            name: homeName // 跳转到homeName页
-        })
+    let userRouter = localRead('USER_ROUTER')
+    if (token) {
+        if(to.name === loginName){
+            next({name:homeName})
+        }else{
+            debugger;
+            if (!asyncRouter.length) {
+                if (!Object.keys(userRouter).length) {
+                    let {user: {token, user: {username} = {}} = {}} = store.state
+                    store.dispatch('GET_NAV_MENU', {token, username}).then((data) => {
+                        asyncRouter = data
+                        localSave('USER_ROUTER', asyncRouter)
+                        go(to, next)
+                    })
+                } else {
+                    asyncRouter = userRouter
+                    go(to, next)
+                }
+            } else {
+                next()
+            }
+        }
     } else {
-        /*if (store.state.user.hasGetInfo) {
-            turnTo(to, store.state.user.access, next)
-        } else {
-            store.dispatch('getUserInfo').then(user => {
-                // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-                turnTo(to, user.access, next)
-            }).catch(() => {
-                setToken('')
-                next({
-                    name: 'login'
-                })
-            })
-        }*/
+        if (whiteList.includes(to.path)) {
+            next()
+        }else{
+            next({name:loginName})
+        }
     }
 });
 
+const go = (to, next) => {
+    asyncRouter = filterAsyncRouter(asyncRouter)
+    router.addRoutes(asyncRouter)
+    next({...to, replace: true})
+    console.log(asyncRouter)
+    store.commit('SET_NAV_MENU',asyncRouter)
+}
+
+const filterAsyncRouter = (routes) => {
+    return routes.filter((route) => {
+        let component = route.component
+        if (component) {
+            switch (route.component) {
+                case 'MenuView':
+                    route.component = Layout
+                    break
+                case 'PageView':
+                    route.component = PageView
+                    break
+                case 'EmptyPageView':
+                    route.component = EmptyPageView
+                    break
+                case 'HomePageView':
+                    route.component = HomePageView
+                    break
+                default:
+                    route.component = view(component)
+            }
+            if (route.children && route.children.length) {
+                route.children = filterAsyncRouter(route.children)
+            }
+            return true
+        }
+    })
+}
+
+const view = (path) => {
+    return (resolve) => {
+        import(`@/views/${path}.vue`).then(mod => {
+            resolve(mod)
+        })
+    }
+}
 
 export default router

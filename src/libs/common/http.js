@@ -1,17 +1,20 @@
 'use strict'
 import axios from 'axios'
 import qs from 'qs'
-import sweetAlert from './sweetAlert'
+import {Message} from 'kpc';
 import { constant } from "../index";
-
+import {store} from '@/store/index'
+let {user:{token}={}} = store.state
 const ajax = axios.create({
-    baseURL: process.env.NODE_ENV === 'development' ? '/api' : '',
+    //baseURL: process.env.NODE_ENV === 'development' ? '/api' : '',
     timeout: 1000,
 })
 ajax.interceptors.request.use(config => {
     // loading
+    debugger;
     config.headers = {
-        ...config.headers
+        ...config.headers,
+        Authentication : token || ''
     }
     return config
 }, error => {
@@ -24,8 +27,8 @@ ajax.interceptors.response.use(response => {
     return Promise.resolve(error.response)
 })
 
-function checkStatus(response) {
-    let { status: httpStatus, data: { msg,code,data} } = response
+ const checkStatus = (response) => {
+    let { status: httpStatus, data: { message,code,data} } = response
     let httpStatusList = [200, 304, 400]
     let httpMsg
     switch (httpStatus) {
@@ -48,7 +51,7 @@ function checkStatus(response) {
             httpMsg = '请求超时'
             break;
         case 500:
-            httpMsg = '服务器端出错'
+            httpMsg = message || '服务器端出错'
             break;
         case 501:
             httpMsg = '网络未实现'
@@ -70,34 +73,43 @@ function checkStatus(response) {
     }
 
     if (response && httpStatusList.includes(httpStatus)) {
-        return { code, msg, data }
+        return { code : code || httpStatus, message, data }
     }
     // 异常状态下，把错误信息返回去
     return {
         code: httpStatus,
-        msg: httpMsg
+        message: httpMsg
     }
 }
 
-function checkCode(res) {
-    let { code, msg, data } = res
+ const checkCode = (res)=>{
+    let { code, message, data } = res
     if (res && (code !== constant.SUCCESS)) {
-        sweetAlert.error(msg)
+        Message.error(message)
     }
-    return { code, msg, data }
+    return { code, message, data }
 }
 
 export default {
     post(url, data) {
+        let handleType
+        let {params} = {} = data
+        if(params && typeof params === 'object'){
+            handleType = {
+                params,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }else{
+            handleType = {
+                data,
+                'Content-Type': 'application/json'
+            }
+        }
         debugger;
-        console.log(qs);
         return ajax({
             method: 'post',
             url,
-            data : qs.stringify(data),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            ...handleType
         }).then(
             (response) => {
                 return checkStatus(response)

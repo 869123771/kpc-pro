@@ -11,7 +11,6 @@
     }
 </script>
 <style>
-    /*@import '~bootstrap-scss/bootstrap.scss';*/
     #app {
 
     }
