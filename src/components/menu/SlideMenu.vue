@@ -1,10 +1,10 @@
 <template>
     <div class="slide-menu">
         <template v-for="slideMenu in slideMenus">
-            <Menu v-if="slideMenu.children.length" :key="slideMenu.path">
-                <slide-menu :navMenus="slideMenu.children"></slide-menu>
+            <Menu :key="slideMenu.path" v-if="slideMenu.children.length">
+                <slide-menu :slideMenus="slideMenu.children"></slide-menu>
             </Menu>
-            <MenuItem v-else :key="slideMenu.path">
+            <MenuItem :key="slideMenu.path" v-else>
                 <Icon :class="slideMenu.icon"></Icon>
                 <span class="menu-item-title">{{slideMenu.name}}</span>
             </MenuItem>

@@ -21,5 +21,5 @@ export const localSave = (key, value) => {
 }
 
 export const localRead = (key) => {
-   return JSON.parse(localStorage.getItem(key)) || {}
+   return JSON.parse(localStorage.getItem(key)) || ''
 }

@@ -1,103 +1,102 @@
+/**
+ * 全站路由配置
+ *
+ * meta参数说明
+ * keepAlive是否缓冲页面
+ * isTab是否加入到tag导航
+ * isAuth是否需要授权
+ */
+
 import Vue from 'vue'
-import Router from 'vue-router'
-import {routers} from './router'
-import {store} from '@/store/index'
+import VueRouter from 'vue-router'
+import PageRouter from './page/'
+import ViewsRouter from './views/'
+import FoxRouter from './fox-router';
+import Store from '@/store/'
 import {constant} from '@/libs'
 import {setToken, getToken, localSave, localRead} from '@/libs/util'
 
-import MenuView from '@/views/common/MenuView'
-import PageView from '@/views/common/PageView'
-import LoginView from '@/views/login/Login'
-import EmptyPageView from '@/views/common/EmptyPageView'
-import HomePageView from '@/views/home/Home'
-import Layout from '@/views/Layout'
+import handleRouter from './fox-router'
+Vue.use(VueRouter)
 
-Vue.use(Router)
-
-const router = new Router({
+const router = new VueRouter({
     //mode: 'history',
-    routes: routers
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition
+        } else {
+            if (from.meta.keepAlive) {
+                from.meta.savedPosition = document.body.scrollTop;
+            }
+            return {
+                x: 0,
+                y: to.meta.savedPosition || 0
+            }
+        }
+    },
+    routes : [...PageRouter, ...ViewsRouter]
 })
-const {config: {loginName, homeName}} = constant
-const whiteList = ['/login']
-let asyncRouter = []
+let {menu,config: {loginName, homeName}} = constant
+let whiteList = ['/login']
+let asyncRouter
 
 router.beforeEach((to, from, next) => {
     debugger;
-    const token = getToken()
+    const meta = to.meta || {};
+    const {user:{roles}} = Store.state
     let userRouter = localRead('USER_ROUTER')
-    if (token) {
-        if(to.name === loginName){
-            next({name:homeName})
-        }else{
-            debugger;
-            if (!asyncRouter.length) {
-                if (!Object.keys(userRouter).length) {
-                    let {user: {token, user: {username} = {}} = {}} = store.state
-                    store.dispatch('GET_NAV_MENU', {token, username}).then((data) => {
-                        asyncRouter = data
-                        localSave('USER_ROUTER', asyncRouter)
+    if (getToken()) {
+        if (to.path === '/login') { //如果登录成功访问登录页跳转到主页
+            next({ path: '/' })
+        } else {
+            if (!asyncRouter) {
+                if (!userRouter) {
+                    let {user: {token, user: {username} = {}} = {}} = Store.state
+                    Store.dispatch('GET_NAV_MENU', {token, username}).then((data) => {
+                        localSave('USER_ROUTER', data)
+                        asyncRouter = menu
                         go(to, next)
+                    }).catch(()=>{
+                        /*store.dispatch('FedLogOut').then(() => {
+                            next({ path: '/login' })
+                        })*/
                     })
-                } else {
+                }else {
                     asyncRouter = userRouter
                     go(to, next)
                 }
-            } else {
+            }else{
                 next()
             }
+            /*if(roles.length){   //如果用户信息为空则获取用户信息，获取用户信息失败，跳转到登录页
+                let dynamicRouter = FoxRouter.formatRoutes(menu,true)
+                router.addRoutes(dynamicRouter)
+                next({...to, replace: true })
+
+            }*/
+
         }
     } else {
-        if (whiteList.includes(to.path)) {
+        //判断是否需要认证，没有登录访问去登录页
+        if (meta.isAuth === false) {
             next()
-        }else{
-            next({name:loginName})
+        } else {
+            next('/login')
         }
     }
+})
+
+router.afterEach(() => {
+    //const title = store.getters.tag.label;
+    //根据当前的标签也获取label的值动态设置浏览器标题
+    //router.$avueRouter.setTitle(title);
 });
 
-const go = (to, next) => {
-    asyncRouter = filterAsyncRouter(asyncRouter)
-    router.addRoutes(asyncRouter)
-    next({...to, replace: true})
-    console.log(asyncRouter)
-    store.commit('SET_NAV_MENU',asyncRouter)
+const go =  (to, next) => {
+    let dynamicRouter = FoxRouter.formatRoutes(menu,true)
+    router.addRoutes(dynamicRouter)
+    next({...to, replace: true })
 }
 
-const filterAsyncRouter = (routes) => {
-    return routes.filter((route) => {
-        let component = route.component
-        if (component) {
-            switch (route.component) {
-                case 'MenuView':
-                    route.component = Layout
-                    break
-                case 'PageView':
-                    route.component = PageView
-                    break
-                case 'EmptyPageView':
-                    route.component = EmptyPageView
-                    break
-                case 'HomePageView':
-                    route.component = HomePageView
-                    break
-                default:
-                    route.component = view(component)
-            }
-            if (route.children && route.children.length) {
-                route.children = filterAsyncRouter(route.children)
-            }
-            return true
-        }
-    })
-}
-
-const view = (path) => {
-    return (resolve) => {
-        import(`@/views/${path}.vue`).then(mod => {
-            resolve(mod)
-        })
-    }
-}
-
+console.log(router)
 export default router

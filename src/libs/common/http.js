@@ -3,15 +3,14 @@ import axios from 'axios'
 import qs from 'qs'
 import {Message} from 'kpc';
 import { constant } from "../index";
-import {store} from '@/store/index'
-let {user:{token}={}} = store.state
+import store from '@/store/'
 const ajax = axios.create({
     //baseURL: process.env.NODE_ENV === 'development' ? '/api' : '',
     timeout: 1000,
 })
 ajax.interceptors.request.use(config => {
     // loading
-    debugger;
+    let {user:{token}={}} = store.state
     config.headers = {
         ...config.headers,
         Authentication : token || ''

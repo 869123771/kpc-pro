@@ -3,7 +3,7 @@
             :expandedKeys.sync="expandedKeys"
             :selectedKey.sync="selectedKey"
     >
-        <slide-menu :slide-menus="menuProps.navMenus"></slide-menu>
+        <slide-menu :slide-menus="menu"></slide-menu>
     </Menu>
 </template>
 
@@ -25,8 +25,11 @@
         },
         computed : {
             ...mapState({
-                menuProps : ({app})=>app.menuProps
-            })
+                menuProps : ({common})=>common.menuProps
+            }),
+            menu(){
+                return this.menuProps.menu
+            }
         }
     }
 </script>

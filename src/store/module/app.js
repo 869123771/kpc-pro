@@ -13,23 +13,11 @@ export default {
                 'margin-left': '12%'
             }
         },
-        menuProps: {
-            collapse: false,
-            activeName: '',
-            openNames: [],
-            navMenus: []
-        },
         breadcrumbList: [],
         navTagList : []
     },
     getters: {},
     mutations: {
-        SET_NAV_MENU(state,navMenus){
-            state.menuProps = {
-                ...state.menuProps,
-                navMenus
-            }
-        },
         shrinkMenu(state) {
             let {
                 menuProps,
@@ -142,18 +130,6 @@ export default {
         }
     },
     actions: {
-        async GET_NAV_MENU({commit},{username,token}){
-            debugger;
-            let {status,data} = await axios.get(`${apiList.nav_menu}/${username}`,{
-                headers: {
-                    'Authentication': token,
-                },
-            })
-            if(status === constant.SUCCESS){
-                commit('SET_NAV_MENU',{data})
-                return data
-            }
 
-        }
     }
 }

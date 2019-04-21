@@ -117,13 +117,20 @@ module.exports = {
         });
 
         // 添加别名
-
         config.resolve.alias
             .set("@", resolve("src"))
             .set("assets", resolve("src/assets"))
             .set("components", resolve("src/components"))
             .set("kpc", 'kpc/@css')
             .set("intact$", 'intact-vue')
+
+        const entry = config.entry('app')
+        entry
+            .add('babel-polyfill')
+            .end()
+        entry
+            .add('classlist-polyfill')
+            .end()
 
         // 打包分析
         if (process.env.IS_ANALYZ) {
