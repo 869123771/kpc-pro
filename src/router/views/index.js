@@ -5,7 +5,7 @@ export default [{
     redirect: '/home',
     children: [{
         path: '/home',
-        name: '首页',
+        label: '首页',
         component: () =>
             import ('@/page/index/Home')
     }]

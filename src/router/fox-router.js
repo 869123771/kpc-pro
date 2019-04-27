@@ -1,11 +1,11 @@
+import Layout from '@/page/Layout'
 import {constant} from '@/libs'
 import router from '@/router'
 let {websit:{menu:{props:propsConfig}}} = constant
 let routerList = []
 let foxRouter = {
     //动态路由
-    formatRoutes: (aMenu = [], first) =>{
-        console.log(this)
+    formatRoutes: (aMenu = [],first) =>{
         debugger;
         const aRouter = []
         const propsDefault = {
@@ -19,13 +19,7 @@ let foxRouter = {
         for (let i = 0; i < aMenu.length; i++) {
             const oMenu = aMenu[i];
             if (routerList.includes(oMenu[propsDefault.path])) return;
-            const path = (() => {
-                    if (first) {
-                        return oMenu[propsDefault.path].replace('/index', '')
-                    } else {
-                        return oMenu[propsDefault.path]
-                    }
-                })(),
+            const path = oMenu[propsDefault.path],
                 component = oMenu.component,
                 name = oMenu[propsDefault.label],
                 icon = oMenu[propsDefault.icon],
@@ -38,23 +32,27 @@ let foxRouter = {
                 component(resolve) {
                     // 判断是否为首路由
                     if (first) {
-                        require(['../page/index/Home'], resolve)
+                        require(['@/page/Layout'], resolve)
                         return
                         // 判断是否为多层路由
                     } else if (isChild && !first) {
-                        require(['../page/Layout'], resolve)
+                        require(['@/page/RouterView'], resolve)
                         return
                         // 判断是否为最终的页面视图
                     } else {
                         require([`../${component}.vue`], resolve)
+                    }
+                    if(isChild){
+                        return require([`@/${component}`], resolve)
+                    }else{
+                        return Layout
                     }
                 },
                 name: name,
                 icon: icon,
                 meta: meta,
                 redirect: (() => {
-                    if (!isChild && first) return `${path}/index`
-                    else return '';
+
                 })(),
                 // 处理是否为一级路由
                 children: !isChild ? (() => {
@@ -70,7 +68,7 @@ let foxRouter = {
                     }
                     return [];
                 })() : (() => {
-                    return foxRouter.formatRoutes(children, false)
+                    return foxRouter.formatRoutes(children)
                 })()
             }
             aRouter.push(oRouter)

@@ -21,6 +21,12 @@ export default {
                 menu
             }
         },
+        SET_COLLAPSE(state,collapse){
+            state.menuProps = {
+                ...state.menuProps,
+                collapse
+            }
+        },
     },
     actions: {
         async GET_NAV_MENU({commit},{username,token}){
