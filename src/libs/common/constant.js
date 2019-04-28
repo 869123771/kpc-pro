@@ -1,7 +1,5 @@
-import websit from './constant/websit'
 import menu from './constant/menu'
 export default {
-    websit,
     menu,
     SUCCESS: 200,
     tablePageInfo : {

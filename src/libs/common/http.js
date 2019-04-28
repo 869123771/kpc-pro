@@ -10,6 +10,7 @@ const ajax = axios.create({
 })
 ajax.interceptors.request.use(config => {
     // loading
+    debugger
     let {user:{token}={}} = store.state
     config.headers = {
         ...config.headers,

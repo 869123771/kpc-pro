@@ -1,23 +1,25 @@
 <template>
-    <Body>
-        <Breadcrumb>
-            <BreadcrumbItem>Home</BreadcrumbItem>
-            <BreadcrumbItem>Detail</BreadcrumbItem>
-        </Breadcrumb>
+    <Body class = "body">
+        <breadcrumb></breadcrumb>
         <router-view></router-view>
     </Body>
 </template>
 
 <script>
-    import {Body,Breadcrumb, BreadcrumbItem,Button,Icon} from 'kpc';
+    import {Body} from 'kpc';
+    import Breadcrumb from '@/components/breadcrumb/Index'
     export default {
         name: "LayoutBody",
         components : {
-            Body,Breadcrumb, BreadcrumbItem,Button,Icon
-        }
+            Body,Breadcrumb
+        },
     }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
+    .body{
+        /deep/ .k-breadcrumb{
+            padding : 0.5rem 0;
+        }
+    }
 </style>

@@ -16,7 +16,6 @@ import Store from '@/store/'
 import {constant} from '@/libs'
 import {setToken, getToken, localSave, localRead} from '@/libs/util'
 
-import handleRouter from './fox-router'
 Vue.use(VueRouter)
 
 const router = new VueRouter({
@@ -42,10 +41,14 @@ let asyncRouter
 
 router.beforeEach((to, from, next) => {
     debugger;
-    const meta = to.meta || {};
+    const {meta = {},matched = []} = to;
     const {user:{roles}} = Store.state
     let userRouter = localRead('USER_ROUTER')
     if (getToken()) {
+        if(matched.length){
+            Store.commit('SET_BREADCRUMB',matched)
+            Store.commit('SET_MENU_PROPS',matched)
+        }
         if (to.path === '/login') { //如果登录成功访问登录页跳转到主页
             next({ path: '/' })
         } else {
@@ -53,7 +56,7 @@ router.beforeEach((to, from, next) => {
                 if (!userRouter) {
                     let {user: {token, user: {username} = {}} = {}} = Store.state
                     Store.dispatch('GET_NAV_MENU', {token, username}).then((data) => {
-                        localSave('USER_ROUTER', data)
+                        localSave('USER_ROUTER', menu)
                         asyncRouter = menu
                         go(to, next)
                     }).catch(()=>{
@@ -86,17 +89,15 @@ router.beforeEach((to, from, next) => {
     }
 })
 
-router.afterEach(() => {
-    //const title = store.getters.tag.label;
-    //根据当前的标签也获取label的值动态设置浏览器标题
-    //router.$avueRouter.setTitle(title);
+router.afterEach((to,from) => {
+    debugger;
 });
 
 const go =  (to, next) => {
     let dynamicRouter = FoxRouter.formatRoutes(menu,true)
+    debugger;
     router.addRoutes(dynamicRouter)
     next({...to, replace: true })
 }
 
-console.log(router)
 export default router

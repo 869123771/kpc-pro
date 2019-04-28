@@ -1,33 +1,16 @@
 import Layout from '@/page/Layout'
 import {constant} from '@/libs'
 import router from '@/router'
-let {websit:{menu:{props:propsConfig}}} = constant
 let routerList = []
 let foxRouter = {
     //动态路由
-    formatRoutes: (aMenu = [],first) =>{
-        debugger;
-        const aRouter = []
-        const propsDefault = {
-            label: propsConfig.label || 'label',
-            path: propsConfig.path || 'path',
-            icon: propsConfig.icon || 'icon',
-            children: propsConfig.children || 'children',
-            meta: propsConfig.meta || 'meta',
-        }
-        if (aMenu.length === 0) return;
-        for (let i = 0; i < aMenu.length; i++) {
-            const oMenu = aMenu[i];
-            if (routerList.includes(oMenu[propsDefault.path])) return;
-            const path = oMenu[propsDefault.path],
-                component = oMenu.component,
-                name = oMenu[propsDefault.label],
-                icon = oMenu[propsDefault.icon],
-                children = oMenu[propsDefault.children],
-                meta = oMenu[propsDefault.meta];
-
+    formatRoutes: (menus = [],first) =>{
+        const Routers = []
+        if (!menus.length) return;
+        menus.forEach(menu=>{
+            let {id,path,name,icon,children,meta,component,label} = menu
             const isChild = children.length !== 0;
-            const oRouter = {
+            const Router = {
                 path: path,
                 component(resolve) {
                     // 判断是否为首路由
@@ -50,20 +33,26 @@ let foxRouter = {
                 },
                 name: name,
                 icon: icon,
-                meta: meta,
+                meta: {
+                    ...meta,
+                    id,path,name,icon,label
+                },
                 redirect: (() => {
 
                 })(),
                 // 处理是否为一级路由
                 children: !isChild ? (() => {
                     if (first) {
-                        oMenu[propsDefault.path] = `${path}/index`;
+                        path = `${path}/index`;
                         return [{
                             component(resolve) { require([`../${component}.vue`], resolve) },
-                            icon: icon,
-                            name: name,
-                            meta: meta,
-                            path: 'index'
+                            icon,
+                            name,
+                            meta: {
+                                ...meta,
+                                id,path,name,icon,label
+                            },
+                            path
                         }]
                     }
                     return [];
@@ -71,17 +60,18 @@ let foxRouter = {
                     return foxRouter.formatRoutes(children)
                 })()
             }
-            aRouter.push(oRouter)
-        }
+            Routers.push(Router)
+        })
+
         if (first) {
-            if (!routerList.includes(aRouter[0][propsDefault.path])) {
-                router.addRoutes(aRouter)
-                routerList.push(aRouter[0][propsDefault.path])
+            if (!routerList.includes(Routers[0]['path'])) {
+                router.addRoutes(Routers)
+                routerList.push(Routers[0]['path'])
             }
         } else {
-            return aRouter
+            return Routers
         }
-        return aRouter
+        return Routers
     }
 }
 

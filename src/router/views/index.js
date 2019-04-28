@@ -6,6 +6,7 @@ export default [{
     children: [{
         path: '/home',
         label: '首页',
+        name : 'home',
         component: () =>
             import ('@/page/index/Home')
     }]

@@ -3,16 +3,16 @@ import axios from "axios";
 import apiList from "../../libs/common/api";
 
 console.log(constant)
-const {website, menu} = constant
+const {menu} = constant
 export default {
     state: {
-        website: website,
         menuProps: {
             collapse: false,
             activeName: '',
             openNames: [],
             menu: menu
         },
+        breadcrumb : [],
     },
     mutations: {
         SET_NAV_MENU(state,menu){
@@ -27,6 +27,30 @@ export default {
                 collapse
             }
         },
+        SET_BREADCRUMB(state,breadcrumb){
+            state.breadcrumb = breadcrumb
+        },
+        SET_MENU_PROPS(state,metched){
+            debugger
+            let openNames = []
+            let activeName
+            metched.forEach((match,index)=>{
+                let {meta:{id}} = match
+                if(index !== metched.length - 1){
+                    openNames = [
+                        ...openNames,
+                        id
+                    ]
+                }else{
+                    activeName = id
+                }
+            })
+            state.menuProps = {
+                ...state.menuProps,
+                openNames,
+                activeName
+            }
+        }
     },
     actions: {
         async GET_NAV_MENU({commit},{username,token}){

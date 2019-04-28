@@ -1,4 +1,4 @@
 export default {
-    website: state => state.common.website,
-    menuProps : state => state.common.menuProps
+    menuProps : state => state.common.menuProps,
+    breadcrumb : state => state.common.breadcrumb
 }

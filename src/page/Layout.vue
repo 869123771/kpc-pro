@@ -22,6 +22,18 @@
             return {
 
             }
+        },
+        watch : {
+            '$route'(route){
+
+            }
         }
     }
 </script>
+<style scoped lang = "less">
+    .layout{
+        /deep/ .k-layout > .k-body{
+            margin : 0 1rem;
+        }
+    }
+</style>
