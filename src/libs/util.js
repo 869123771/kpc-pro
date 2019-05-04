@@ -21,5 +21,41 @@ export const localSave = (key, value) => {
 }
 
 export const localRead = (key) => {
-   return JSON.parse(localStorage.getItem(key)) || ''
+    return JSON.parse(localStorage.getItem(key)) || ''
 }
+
+export const downloadFile = (data, filename) => {
+    let url = window.URL.createObjectURL(new Blob([data]))
+    let link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+}
+
+export const handleScreen = (fullScreen) => {
+    let main = document.body
+    if (fullScreen) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen()
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen()
+        } else if (document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen()
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen()
+        }
+    } else {
+        if (main.requestFullscreen) {
+            main.requestFullscreen()
+        } else if (main.mozRequestFullScreen) {
+            main.mozRequestFullScreen()
+        } else if (main.webkitRequestFullScreen) {
+            main.webkitRequestFullScreen()
+        } else if (main.msRequestFullscreen) {
+            main.msRequestFullscreen()
+        }
+    }
+}
+

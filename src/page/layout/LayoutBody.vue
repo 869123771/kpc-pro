@@ -19,7 +19,7 @@
 <style scoped lang="less">
     .body{
         /deep/ .k-breadcrumb{
-            padding : 0.5rem 0;
+            padding : 1rem 0;
         }
     }
 </style>

@@ -1,5 +1,5 @@
 import {localSave, localRead} from '@/libs/util'
-
+import { setToken} from '@/libs/util'
 export default {
     state: {
         token: localRead('USER_TOKEN'),
@@ -33,9 +33,29 @@ export default {
         SET_THEME(state, theme) {
             localSave('THEME', theme)
             state.theme = theme
-        }
+        },
+
     },
 
-    actions: {},
+    actions: {
+        LOGIN({commit},data){
+            let {token,exipreTime,user,permissions,roles} = data
+            setToken(token)
+            commit('SET_TOKEN',token)
+            commit('SET_EXPIRETIME',exipreTime)
+            commit('SET_USER',user)
+            commit('SET_PERMISSIONS',permissions)
+            commit('SET_ROLES',roles)
+        },
+        LOGIN_OUT({commit}){
+            setToken('')
+            localSave('USER_ROUTER', '')
+            commit('SET_TOKEN','')
+            commit('SET_EXPIRETIME','')
+            commit('SET_USER','')
+            commit('SET_PERMISSIONS','')
+            commit('SET_ROLES','')
+        }
+    },
 
 }

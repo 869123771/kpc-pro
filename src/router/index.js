@@ -54,6 +54,7 @@ router.beforeEach((to, from, next) => {
         } else {
             if (!asyncRouter) {
                 if (!userRouter) {
+                    debugger;
                     let {user: {token, user: {username} = {}} = {}} = Store.state
                     Store.dispatch('GET_NAV_MENU', {token, username}).then((data) => {
                         localSave('USER_ROUTER', menu)
@@ -97,6 +98,7 @@ const go =  (to, next) => {
     let dynamicRouter = FoxRouter.formatRoutes(menu,true)
     debugger;
     router.addRoutes(dynamicRouter)
+    Store.commit('SET_NAV_MENU',menu)
     next({...to, replace: true })
 }
 

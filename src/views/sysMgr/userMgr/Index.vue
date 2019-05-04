@@ -1,11 +1,11 @@
 <template>
     <div class="user-mgr">
-        <Form>
-            <Row>
+        <Row>
+            <Form ref = "form">
                 <div :class="form.fold?'fold':''">
                     <Col span="12">
                         <FormItem label="用户名" model="form.username" class="w-100">
-                            <Input v-model="form.userName" clearable fluid/>
+                            <Input v-model="form.username" clearable fluid/>
                         </FormItem>
                     </Col>
                     <Col span="12">
@@ -17,13 +17,15 @@
                     </Col>
                 </div>
                 <Col span="12" class="mt-3" v-show="!form.fold">
-                    <FormItem label="日期" model="form.date" class="w-100">
-                        <Datepicker range v-model="form.date" clearable class="w-100"/>
+                    <FormItem label="创建时间" model="form.createTime" class="w-100">
+                        <Datepicker range v-model="form.createTime" clearable class="w-100"/>
                     </FormItem>
                 </Col>
                 <FormItem hideLabel class="tail float-right" :class="form.fold?'':'mt-3'">
-                    <Button type="primary" @click = "search">查询</Button>
-                    <Button class="mx-2">重置</Button>
+                    <Button type="primary" @click="search" class = "mr-2">
+                        <i class="iconfont icon-search"></i>查询</Button>
+                    <Button @click="reset">
+                        <i class = "k-icon ion-ios-reload"><i/></i>重置</Button>
                     <Button type="none" @click="fold">
                         <span v-if="form.fold">
                             <span>展开</span>
@@ -35,63 +37,179 @@
                         </span>
                     </Button>
                 </FormItem>
-            </Row>
-            <Row class = "my-3">
-                <Table :scheme="table.columns" :data="table.datas" resizable type = "grid" size = "small"/>
-                <div class = "my-3 text-center">
-                    <Pagination :total="page.total" :current="page.pageNum" :limit = "page.pageSize" @change="_onChange" size = "small"/>
-                </div>
-            </Row>
-        </Form>
+            </Form>
+        </Row>
+        <Row class = "mt-3">
+            <Button @click = "add">
+                <i class = "k-icon ion-plus"></i>新增</Button>
+            <Dropdown trigger="click" class = "px-2">
+                <Button>
+                     更多操作<Icon class="ion-ios-arrow-down" />
+                </Button>
+                <DropdownMenu>
+                    <DropdownItem @click = "downLoadFile">导出Excel</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </Row>
+        <Row class="my-3">
+            <Table
+                    :scheme="table.columns"
+                    :data="table.datas"
+                    :sort="table.sort"
+                    :group.async="table.group"
+                    :loading="table.loading"
+                    size="small"
+                    resizable
+                    type="grid"
+                    @$change:sort="_onSort"
+                    @$change:group="_onGroup"
+            />
+            <div class="my-3 text-center">
+                <Pagination :total="page.total" :current="page.pageNum" :limit="page.pageSize" @change="pageChange"
+                            size="small"/>
+            </div>
+        </Row>
+        <Dialog v-model="modal.show" title="用户信息">
+            <template slot="body">
+                <component :is="modal.component" :form="modal.form"></component>
+            </template>
+            <div slot="footer-wrapper"></div>
+        </Dialog>
+        <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" hideClose ref="addUser" class = "drawer">
+            <component :is = "drawer.type" :form = "drawer.form"></component>
+            <div slot="footer-wrapper" class = "text-center">
+                <Tooltip content="确定放弃编辑？"
+                         confirm
+                         trigger="click"
+                         @ok="ok"
+                >
+                    <Button>取消</Button>
+                </Tooltip>
+                <Button type = "primary" class = "mx-2 my-3">确定</Button>
+            </div>
+        </Drawer>
     </div>
 </template>
 
 <script>
-    import {Form, FormItem, Select, Option, Input, Datepicker, Button, Row, Col, Icon, Table,Pagination} from 'kpc'
-    import {mapState} from 'vuex'
-    import axios from 'axios'
-    import {apiList} from '@/libs'
+    import {
+        Form, FormItem, Select, Option, Input, Tag,Dropdown,DropdownMenu,DropdownItem,
+        Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog,Drawer,Tooltip
+    } from 'kpc'
+    import {apiList,http,constant} from '@/libs'
+    import {downloadFile} from '@/libs/util'
+    import Read from './Read'
+    import Add from './Add'
     export default {
         name: "Index",
         components: {
-            Form, FormItem, Select, Option, Input, Datepicker, Button, Row, Col, Icon, Table,Pagination
+            Form, FormItem, Select, Option, Input, Datepicker,Dropdown,DropdownMenu,DropdownItem,
+            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog,Drawer,Tooltip
         },
         data() {
             return {
                 form: {
                     fold: true,
-                    userName: '',
+                    username: '',
                     deptId: '',
-                    date: '',
+                    status: '',
+                    createTime: '',
+                    createTimeFrom: '',
+                    createTimeTo: '',
                 },
                 table: {
+                    loading: false,
+                    sort: {},
+                    group: {},
                     columns: {
-                        userName : {
+                        oper: {
+                            title: '操作',
+                            width: '70',
+                            template: row => {
+                                let props = {
+                                    style: {
+                                        cursor: 'pointer'
+                                    },
+                                    class: "ion-eye",
+                                }
+                                return <Icon {...props} onClick={() => this.view(row)}></Icon>
+                            }
+                        },
+                        username: {
                             title: '用户名',
-                            key: 'username'
+                            sortable: true,
+                            class: 'text-center'
                         },
-                        sex : {
-                            title : '性别',
-                            key : 'sex'
+                        ssex: {
+                            title: '性别',
+                            template: (data) => {
+                                let {ssex} = data
+                                let title = '保密'
+                                switch (ssex) {
+                                    case '0' :
+                                        title = '男';
+                                        break
+                                    case '1' :
+                                        title = '女';
+                                        break
+                                }
+                                return <span>{title}</span>
+                            },
                         },
-                        email : {
-                            title : '邮箱',
-                            key : 'email'
-                        }
+                        email: {
+                            title: '邮箱',
+                        },
+                        deptName: {
+                            title: '部门',
+                            sortable: true
+                        },
+                        mobile: {
+                            title: '电话',
+                        },
+                        status: {
+                            title: '状态',
+                            template: (data) => {
+                                let {status} = data
+                                let tag
+                                switch (status) {
+                                    case '0' :
+                                        tag = {...tag, type: 'danger', label: '锁定'};
+                                        break
+                                    case '1' :
+                                        tag = {...tag, type: 'primary', label: '有效'};
+                                        break
+                                }
+                                return <Tag type={tag.type} size="small">{tag.label}</Tag>
+                            },
+                            group: [
+                                {label: '全部', value: ''},
+                                {label: '锁定', value: '0'},
+                                {label: '有效', value: '1'},
+                            ]
+                        },
+                        createTime: {
+                            title: '创建时间',
+                        },
                     },
                     datas: []
                 },
-                page : {
-                    total : 0,
-                    pageNum : 1,
-                    pageSize : 10
-                }
+                page: {
+                    total: 0,
+                    pageNum: 1,
+                    pageSize: 10
+                },
+                modal: {
+                    show: false,
+                    form: {},
+                    component: Read
+                },
+                drawer : {
+                    show : false,
+                    title : '新增角色',
+                    type : Add,
+                    form : {}
+                },
             }
-        },
-        computed : {
-            ...mapState({
-                token : ({user})=>user.token
-            })
         },
         methods: {
             fold() {
@@ -101,36 +219,105 @@
                     fold: !fold
                 }
             },
-            _onChange(v){
-                debugger;
+            _onSort(c, sort) {
+                let {key, type} = sort
+                let {datas} = this.table
+                datas.sort((a, b) => {
+                    return type === 'desc' ?
+                        (a[key] > b[key] ? -1 : 1) :
+                        (a[key] > b[key] ? 1 : -1);
+                })
+                this.table = {
+                    ...this.table,
+                    datas,
+                    sort
+                }
             },
-            search(){
+            _onGroup(c, group) {
+                let {status} = group
+                this.form = {
+                    ...this.form,
+                    status
+                }
                 this.queryList()
             },
-            queryList(){
+            async downLoadFile(){
+                let {createTime,...res} = this.form
                 let params = {
-                    ...this.form,
-                    ...this.page
+                    ...res
                 }
-                axios.get(apiList.sys_mgr_user_mgr_query,{
-                    headers: {
-                        Authentication : this.token
-                    },
-                    params
-                }).then(({data:{total,rows}})=>{
-                    debugger;
+                let {code,data} = await http.postDownload(apiList.sys_mgr_user_mgr_export,{params})
+                if(code === constant.SUCCESS){
+                    downloadFile(data,'用户信息')
+                }
+            },
+            add(){
+                this.drawer = {
+                    ...this.drawer,
+                    show : true
+                }
+            },
+            closeDrawer(){
+                this.drawer = {
+                    ...this.drawer,
+                    show : false
+                }
+            },
+            ok(){
+                this.closeDrawer()
+            },
+            view(row) {
+                this.modal = {
+                    ...this.modal,
+                    show: true
+                }
+                this.modal = {
+                    ...this.modal,
+                    form: {...row}
+                }
+            },
+            pageChange({current: pageNum, limit: pageSize}) {
+                this.page = {
+                    ...this.page,
+                    pageNum,
+                    pageSize
+                }
+                this.queryList()
+            },
+            reset(){
+                this.$refs.form.reset();
+            },
+            search() {
+                this.queryList()
+            },
+            async queryList() {
+                let {createTime, ...res} = this.form
+                let [createTimeFrom, createTimeTo] = createTime ? createTime : []
+                let params = {
+                    ...res,
+                    ...this.page,
+                    createTimeFrom,
+                    createTimeTo
+                }
+                this.table = {
+                    ...this.table,
+                    loading: true,
+                }
+                let {code,data:{total,rows:datas}} = await http.get(apiList.sys_mgr_user_mgr_query,params)
+                if(code === constant.SUCCESS){
                     this.table = {
                         ...this.table,
-                        datas : rows
+                        datas,
+                        loading : false
                     }
                     this.page = {
                         ...this.page,
                         total
                     }
-                })
+                }
             }
         },
-        mounted(){
+        mounted() {
             this.queryList()
         }
     }
@@ -142,7 +329,7 @@
             outline: none;
         }
         .fold {
-            width: calc(100% - 250px);
+            width: calc(100% - 282px);
             display: inline-block;
         }
         .arrow {
@@ -151,6 +338,26 @@
             padding-bottom: -7px;
             display: inline-block;
             margin-bottom: 4px;
+        }
+    }
+
+    .k-dialog {
+        /deep/ .img {
+            width: 114px;
+        }
+        /deep/ i {
+            font-size: 20px;
+            display: inline-block;
+            width: 20px;
+            color: rgba(0, 123, 255, 0.5)
+        }
+        /deep/ .label {
+            padding: 0 0.5rem;
+        }
+    }
+    .drawer {
+        .k-dialog{
+            width: 35%;
         }
     }
 </style>

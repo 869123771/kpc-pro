@@ -10,7 +10,7 @@
                                           :rules="formRule.username.rules"
                                           :messages="formRule.username.messages"
                                           hideLabel>
-                                    <Input v-model="form.username" size="large" clearable placeholder="帐号">
+                                    <Input v-model="form.username" fluid size="large" clearable placeholder="帐号">
                                     <template slot="prefix"><i class="ion-person"></i></template>
                                     </Input>
                                 </FormItem>
@@ -18,7 +18,7 @@
                                           :rules="formRule.password.rules"
                                           :messages="formRule.password.messages"
                                           hideLabel>
-                                    <Input type="password" v-model="form.password" size="large" clearable
+                                    <Input type="password" v-model="form.password" fluid size="large" clearable
                                            placeholder="密码">
                                     <template slot="prefix"><i class="ion-locked"></i></template>
                                     </Input>
@@ -27,7 +27,7 @@
                                           :rules="formRule.way.rules"
                                           :messages="formRule.way.messages"
                                           hideLabel>
-                                    <Select v-model="form.way" clearable fluid placeholder="登录方式">
+                                    <Select v-model="form.way" clearable fluid size="large" clearable placeholder="登录方式">
                                         <Option value="local">本地登录</Option>
                                         <Option value="uniportal">w3登录</Option>
                                     </Select>
@@ -51,7 +51,6 @@
     import Vue from 'vue'
     import {mapMutations} from 'vuex'
     import {http, apiList, constant} from '@/libs'
-    import { setToken} from '@/libs/util'
     const {config: {homeName}} = constant
 
     Vue.use(vueParticleLine)
@@ -68,7 +67,7 @@
             return {
                 collapse: ['loginItem'],
                 form: {
-                    username: 'scott',
+                    username: 'mrbird',
                     password: '1234qwer',
                     way: ''
                 },
@@ -86,13 +85,6 @@
             }
         },
         methods: {
-            ...mapMutations({
-                setToken: 'SET_TOKEN',
-                setExpireTime: 'SET_EXPIRETIME',
-                setPermissions: 'SET_PERMISSIONS',
-                setRoles: 'SET_ROLES',
-                setUser: 'SET_USER',
-            }),
             async handleSubmit() {
                 let valid = await this.$refs.form.validate()
                 if (valid) {
@@ -105,13 +97,7 @@
                 }
                 let {code,data} = await http.post(apiList.login, {params})
                 if(code === constant.SUCCESS){
-                    let {token,exipreTime,user,permissions,roles} = data
-                    setToken(token)
-                    this.setToken(token)
-                    this.setExpireTime(exipreTime)
-                    this.setUser(user)
-                    this.setPermissions(permissions)
-                    this.setRoles(roles)
+                    this.$store.dispatch('LOGIN',data)
                     this.$router.push({name:homeName})
                 }
             }

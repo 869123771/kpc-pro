@@ -48,6 +48,7 @@ export default {
          */
         homeName: 'home',
         loginName : 'login',
+        avatarLocation : 'http://111.230.157.133:8081/static/avatar/'
     }
 }
 

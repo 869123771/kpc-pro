@@ -1,18 +1,15 @@
-import constant from "../../libs/common/constant";
 import axios from "axios";
-import apiList from "../../libs/common/api";
-
-console.log(constant)
-const {menu} = constant
+import {apiList,http,constant} from "@/libs";
 export default {
     state: {
         menuProps: {
             collapse: false,
             activeName: '',
             openNames: [],
-            menu: menu
+            menu: []
         },
         breadcrumb : [],
+        sex : []
     },
     mutations: {
         SET_NAV_MENU(state,menu){
@@ -50,19 +47,29 @@ export default {
                 openNames,
                 activeName
             }
+        },
+        SET_SEX(state,sex){
+            state.sex = sex
         }
     },
     actions: {
         async GET_NAV_MENU({commit},{username,token}){
+            debugger;
             let {status,data} = await axios.get(`${apiList.nav_menu}/${username}`,{
                 headers: {
                     'Authentication': token,
                 },
             })
             if(status === constant.SUCCESS){
+                commit('SET_NAV_MENU',constant.menu)
                 return data
             }
-
+        },
+        async GET_SEX({commit}){
+            let {code,data:{rows}} = await http.get(apiList.common_dict,{fieldName: 'ssex'})
+            if(code === constant.SUCCESS){
+                commit('SET_SEX',rows)
+            }
         }
     },
 }

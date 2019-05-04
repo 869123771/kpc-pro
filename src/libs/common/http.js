@@ -6,11 +6,10 @@ import { constant } from "../index";
 import store from '@/store/'
 const ajax = axios.create({
     //baseURL: process.env.NODE_ENV === 'development' ? '/api' : '',
-    timeout: 1000,
+    timeout: 10000,
 })
 ajax.interceptors.request.use(config => {
     // loading
-    debugger
     let {user:{token}={}} = store.state
     config.headers = {
         ...config.headers,
@@ -28,7 +27,7 @@ ajax.interceptors.response.use(response => {
 })
 
  const checkStatus = (response) => {
-    let { status: httpStatus, data: { message,code,data} } = response
+    let { status: httpStatus, data: { message ,code ,data} } = response
     let httpStatusList = [200, 304, 400]
     let httpMsg
     switch (httpStatus) {
@@ -91,7 +90,7 @@ ajax.interceptors.response.use(response => {
 }
 
 export default {
-    post(url, data) {
+    post(url, data,responseType) {
         let handleType
         let {params} = {} = data
         if(params && typeof params === 'object'){
@@ -105,11 +104,26 @@ export default {
                 'Content-Type': 'application/json'
             }
         }
-        debugger;
+        if(responseType){
+            return this.postDownload(url,handleType)
+        }else{
+            return this.postOrdinary(url,handleType)
+        }
+    },
+    postOrdinary(url,handleType){
         return ajax({
             method: 'post',
             url,
-            ...handleType
+            ...handleType,
+            transformResponse: [(data)=>{
+                let res
+                try{
+                    res = JSON.parse(data)
+                }catch(e){
+                    res = {data}
+                }
+                return res
+            }],
         }).then(
             (response) => {
                 return checkStatus(response)
@@ -120,6 +134,18 @@ export default {
             }
         )
     },
+    postDownload(url, handleType){
+        return ajax({
+            method: 'post',
+            url,
+            ...handleType,
+            responseType : 'blob'
+        }).then(res=>{
+            debugger;
+            let {status,data} = res
+            return {code :status, data}
+        })
+    },
     get(url, params) {
         return ajax({
             method: 'get',
@@ -127,7 +153,12 @@ export default {
             params, // get 请求时带的参数
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            transformResponse: [(data)=>{
+                return {
+                    data : JSON.parse(data),
+                };
+            }],
         }).then(
             (response) => {
                 return checkStatus(response)
