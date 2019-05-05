@@ -49,9 +49,15 @@
             </div>
         </Row>
         <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" hideClose ref="addRole">
-            <component :is = "drawer.type" :form = "drawer.form"></component>
+            <component :is = "drawer.type" :form = "drawer.form" ref = "_drawerBody"></component>
             <div slot="footer-wrapper" class = "text-center">
-                <Button>取消</Button>
+                <Tooltip content="确定放弃编辑？"
+                         confirm
+                         trigger="click"
+                         @ok="ok"
+                >
+                    <Button>取消</Button>
+                </Tooltip>
                 <Button type = "primary" class = "mx-2 my-3">确定</Button>
             </div>
         </Drawer>
@@ -61,7 +67,7 @@
 
 <script>
     import {Row, Col, Form, FormItem, Dropdown,DropdownMenu,DropdownItem,Drawer,
-        Input, Button, Datepicker,Table,Pagination,Icon} from 'kpc'
+        Input, Button, Datepicker,Table,Pagination,Icon,Tooltip} from 'kpc'
     import {apiList,http,constant} from '@/libs'
     import {downloadFile} from '@/libs/util'
     import Add from './Add'
@@ -69,7 +75,7 @@
         name: "Index",
         components: {
             Row, Col, Form, FormItem,Dropdown,DropdownMenu,DropdownItem,Drawer,
-            Input, Button, Datepicker,Table,Pagination,Icon,
+            Input, Button, Datepicker,Table,Pagination,Icon,Tooltip
         },
         data() {
             return {
@@ -149,6 +155,15 @@
                     pageSize
                 }
                 this.queryList()
+            },
+            closeDrawer(){
+                this.drawer = {
+                    ...this.drawer,
+                    show : false
+                }
+            },
+            ok(){
+                this.closeDrawer()
             },
             add(){
                 this.drawer = {

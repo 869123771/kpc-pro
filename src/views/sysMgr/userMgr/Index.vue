@@ -1,7 +1,7 @@
 <template>
     <div class="user-mgr">
         <Row>
-            <Form ref = "form">
+            <Form ref="form">
                 <div :class="form.fold?'fold':''">
                     <Col span="12">
                         <FormItem label="用户名" model="form.username" class="w-100">
@@ -22,10 +22,12 @@
                     </FormItem>
                 </Col>
                 <FormItem hideLabel class="tail float-right" :class="form.fold?'':'mt-3'">
-                    <Button type="primary" @click="search" class = "mr-2">
-                        <i class="iconfont icon-search"></i>查询</Button>
+                    <Button type="primary" @click="search" class="mr-2">
+                        <i class="iconfont icon-search"></i>查询
+                    </Button>
                     <Button @click="reset">
-                        <i class = "k-icon ion-ios-reload"><i/></i>重置</Button>
+                        <i class="k-icon ion-ios-reload"><i/></i>重置
+                    </Button>
                     <Button type="none" @click="fold">
                         <span v-if="form.fold">
                             <span>展开</span>
@@ -39,15 +41,17 @@
                 </FormItem>
             </Form>
         </Row>
-        <Row class = "mt-3">
-            <Button @click = "add">
-                <i class = "k-icon ion-plus"></i>新增</Button>
-            <Dropdown trigger="click" class = "px-2">
+        <Row class="mt-3">
+            <Button @click="add">
+                <i class="k-icon ion-plus"></i>新增
+            </Button>
+            <Dropdown trigger="click" class="px-2">
                 <Button>
-                     更多操作<Icon class="ion-ios-arrow-down" />
+                    更多操作
+                    <Icon class="ion-ios-arrow-down"/>
                 </Button>
                 <DropdownMenu>
-                    <DropdownItem @click = "downLoadFile">导出Excel</DropdownItem>
+                    <DropdownItem @click="downLoadFile">导出Excel</DropdownItem>
                 </DropdownMenu>
             </Dropdown>
         </Row>
@@ -58,11 +62,11 @@
                     :sort="table.sort"
                     :group.async="table.group"
                     :loading="table.loading"
-                    size="small"
                     resizable
                     type="grid"
                     @$change:sort="_onSort"
                     @$change:group="_onGroup"
+                    :rowCheckable="false"
             />
             <div class="my-3 text-center">
                 <Pagination :total="page.total" :current="page.pageNum" :limit="page.pageSize" @change="pageChange"
@@ -75,9 +79,9 @@
             </template>
             <div slot="footer-wrapper"></div>
         </Dialog>
-        <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" hideClose ref="addUser" class = "drawer">
-            <component :is = "drawer.type" :form = "drawer.form"></component>
-            <div slot="footer-wrapper" class = "text-center">
+        <Drawer v-model="drawer.show" :title="drawer.title" :closable="false" hideClose ref="addUser" class="drawer">
+            <component :is="drawer.type" ref="_drawerBody" :datas = "drawer.datas" @closeFlush="closeFlush"></component>
+            <div slot="footer-wrapper" class="text-center">
                 <Tooltip content="确定放弃编辑？"
                          confirm
                          trigger="click"
@@ -85,7 +89,7 @@
                 >
                     <Button>取消</Button>
                 </Tooltip>
-                <Button type = "primary" class = "mx-2 my-3">确定</Button>
+                <Button type="primary" class="mx-2 my-3" @click="confirm">确定</Button>
             </div>
         </Drawer>
     </div>
@@ -93,18 +97,19 @@
 
 <script>
     import {
-        Form, FormItem, Select, Option, Input, Tag,Dropdown,DropdownMenu,DropdownItem,
-        Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog,Drawer,Tooltip
+        Form, FormItem, Select, Option, Input, Tag, Dropdown, DropdownMenu, DropdownItem,
+        Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog, Drawer, Tooltip
     } from 'kpc'
-    import {apiList,http,constant} from '@/libs'
+    import {apiList, http, constant} from '@/libs'
     import {downloadFile} from '@/libs/util'
     import Read from './Read'
-    import Add from './Add'
+    import Modify from './Modify'
+
     export default {
         name: "Index",
         components: {
-            Form, FormItem, Select, Option, Input, Datepicker,Dropdown,DropdownMenu,DropdownItem,
-            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog,Drawer,Tooltip
+            Form, FormItem, Select, Option, Input, Datepicker, Dropdown, DropdownMenu, DropdownItem,
+            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip
         },
         data() {
             return {
@@ -127,12 +132,29 @@
                             width: '70',
                             template: row => {
                                 let props = {
-                                    style: {
-                                        cursor: 'pointer'
+                                    view: {
+                                        style: {
+                                            cursor: 'pointer'
+                                        },
+                                        class: "ion-eye",
                                     },
-                                    class: "ion-eye",
+                                    edit: {
+                                        style: {
+                                            cursor: 'pointer',
+                                            paddingLeft: '0.5rem'
+                                        },
+                                        class: "ion-edit",
+                                    }
                                 }
-                                return <Icon {...props} onClick={() => this.view(row)}></Icon>
+
+                                return <span>
+                                            <Tooltip placement="top" content="查看">
+                                                <Icon {...props.view} onClick={() => this.view(row)}></Icon>
+                                            </Tooltip><Tooltip placement="top" content="编辑">
+                                                <Icon {...props.edit} onClick={() => this.edit(row)}></Icon>
+                                            </Tooltip>
+                                        </span>
+
                             }
                         },
                         username: {
@@ -203,11 +225,11 @@
                     form: {},
                     component: Read
                 },
-                drawer : {
-                    show : false,
-                    title : '新增角色',
-                    type : Add,
-                    form : {}
+                drawer: {
+                    show: false,
+                    title: '新增角色',
+                    type: Modify,
+                    datas : {}
                 },
             }
         },
@@ -241,30 +263,40 @@
                 }
                 this.queryList()
             },
-            async downLoadFile(){
-                let {createTime,...res} = this.form
+            async downLoadFile() {
+                let {createTime, ...res} = this.form
                 let params = {
                     ...res
                 }
-                let {code,data} = await http.postDownload(apiList.sys_mgr_user_mgr_export,{params})
-                if(code === constant.SUCCESS){
-                    downloadFile(data,'用户信息')
+                let {code, data} = await http.postDownload(apiList.sys_mgr_user_mgr_export, {params})
+                if (code === constant.SUCCESS) {
+                    downloadFile(data, '用户信息')
                 }
             },
-            add(){
+            confirm() {
+                this.$refs._drawerBody.save()
+            },
+            add() {
                 this.drawer = {
                     ...this.drawer,
-                    show : true
+                    show: true,
+                    datas : {
+                        type : 0            //新增
+                    }
                 }
             },
-            closeDrawer(){
+            closeDrawer() {
                 this.drawer = {
                     ...this.drawer,
-                    show : false
+                    show: false
                 }
             },
-            ok(){
+            ok() {
                 this.closeDrawer()
+            },
+            closeFlush() {
+                this.closeDrawer()
+                this.queryList()
             },
             view(row) {
                 this.modal = {
@@ -276,6 +308,18 @@
                     form: {...row}
                 }
             },
+            edit(row){
+                this.drawer = {
+                    ...this.drawer,
+                    show: true,
+                    title: '修改角色',
+                    type: Modify,
+                    datas : {
+                        ...row,
+                        type : 1            //编辑
+                    }
+                }
+            },
             pageChange({current: pageNum, limit: pageSize}) {
                 this.page = {
                     ...this.page,
@@ -284,7 +328,7 @@
                 }
                 this.queryList()
             },
-            reset(){
+            reset() {
                 this.$refs.form.reset();
             },
             search() {
@@ -303,12 +347,12 @@
                     ...this.table,
                     loading: true,
                 }
-                let {code,data:{total,rows:datas}} = await http.get(apiList.sys_mgr_user_mgr_query,params)
-                if(code === constant.SUCCESS){
+                let {code, data: {total, rows: datas}} = await http.get(apiList.sys_mgr_user_mgr_query, params)
+                if (code === constant.SUCCESS) {
                     this.table = {
                         ...this.table,
                         datas,
-                        loading : false
+                        loading: false
                     }
                     this.page = {
                         ...this.page,
@@ -332,6 +376,9 @@
             width: calc(100% - 282px);
             display: inline-block;
         }
+        .tail {
+            width: inherit;
+        }
         .arrow {
             padding-left: 0.5rem;
             font-size: 20px;
@@ -345,18 +392,13 @@
         /deep/ .img {
             width: 114px;
         }
-        /deep/ i {
-            font-size: 20px;
-            display: inline-block;
-            width: 20px;
-            color: rgba(0, 123, 255, 0.5)
-        }
         /deep/ .label {
             padding: 0 0.5rem;
         }
     }
+
     .drawer {
-        .k-dialog{
+        .k-dialog {
             width: 35%;
         }
     }

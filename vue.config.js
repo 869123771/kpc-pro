@@ -121,7 +121,8 @@ module.exports = {
             .set("@", resolve("src"))
             .set("assets", resolve("src/assets"))
             .set("components", resolve("src/components"))
-            .set("kpc", 'kpc/@css')
+            //.set("kpc", 'kpc/@css')
+            .set("kpc", 'kpc/@stylus')
             .set("intact$", 'intact-vue')
 
         const entry = config.entry('app')
@@ -165,7 +166,13 @@ module.exports = {
                 // 向全局sass样式传入共享的全局变量
                 // data: `@import "~assets/scss/variables.scss";$src: "${process.env.VUE_APP_SRC}";`
                 data: `$src: "${process.env.VUE_APP_SRC}";`
+            },
+            stylus: {
+                'include css': true,
+                'resolve url': true,
+                import: resolve("src/style/theme/index.styl")
             }
+
             // px转换为rem
             // postcss: {
             //   plugins: [
@@ -202,7 +209,7 @@ module.exports = {
         hotOnly: true,
         proxy: {
             "/": {
-                ws : false,
+                ws: false,
                 target: process.env.VUE_APP_BASE_API || "http://localhost:9527", //"http://111.230.157.133:9527",
                 changeOrigin: true,
             }

@@ -9,7 +9,8 @@ export default {
             menu: []
         },
         breadcrumb : [],
-        sex : []
+        sex : [],
+        userStatus : [],
     },
     mutations: {
         SET_NAV_MENU(state,menu){
@@ -50,6 +51,9 @@ export default {
         },
         SET_SEX(state,sex){
             state.sex = sex
+        },
+        SET_USER_STATUS(state,userStatus){
+            state.userStatus = userStatus
         }
     },
     actions: {
@@ -69,6 +73,16 @@ export default {
             let {code,data:{rows}} = await http.get(apiList.common_dict,{fieldName: 'ssex'})
             if(code === constant.SUCCESS){
                 commit('SET_SEX',rows)
+            }
+        },
+        async GET_USER_STATUS({commit}){
+            let params = {
+                fieldName : 'status',
+                tableName : 't_user'
+            }
+            let {code,data:{rows}} = await http.get(apiList.common_dict,params)
+            if(code === constant.SUCCESS){
+                commit('SET_USER_STATUS',rows)
             }
         }
     },

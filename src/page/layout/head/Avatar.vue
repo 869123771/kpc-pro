@@ -23,7 +23,7 @@
 </template>
 
 <script>
-    import {Icon,Dropdown,DropdownMenu,DropdownItem} from 'kpc'
+    import {Icon,Dropdown,DropdownMenu,DropdownItem,Button} from 'kpc'
     import {mapGetters,mapActions,mapMutations} from 'vuex'
     import {constant} from '@/libs'
     import {handleScreen} from '@/libs/util'
@@ -31,7 +31,7 @@
     export default {
         name: "Avatar",
         components : {
-            Icon,Dropdown,DropdownMenu,DropdownItem
+            Icon,Dropdown,DropdownMenu,DropdownItem,Button
         },
         data() {
             return {}
@@ -60,7 +60,7 @@
             loginOut(){
                 this.quit()
                 this.$router.push({name:loginName})
-            }
+            },
         }
     }
 </script>
@@ -69,6 +69,7 @@
     .avatar{
         img{
             width : 34px;
+            border-radius: 20px;
         }
         &-span{
             cursor : pointer;

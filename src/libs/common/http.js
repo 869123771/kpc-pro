@@ -91,11 +91,26 @@ ajax.interceptors.response.use(response => {
 
 export default {
     post(url, data,responseType) {
+        let handleType = this.handleType(data)
+        let method = 'post'
+        if(responseType){
+            return this.download(url,handleType,method)
+        }else{
+            return this.ordinary(url,handleType,method)
+        }
+    },
+    put(url,data){
+        let handleType = this.handleType(data)
+        let method = 'put'
+        return this.ordinary(url,handleType,method)
+    },
+    handleType(data){
+        debugger;
         let handleType
         let {params} = {} = data
         if(params && typeof params === 'object'){
             handleType = {
-                params,
+                 data : qs.stringify(params),
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         }else{
@@ -104,15 +119,11 @@ export default {
                 'Content-Type': 'application/json'
             }
         }
-        if(responseType){
-            return this.postDownload(url,handleType)
-        }else{
-            return this.postOrdinary(url,handleType)
-        }
+        return handleType
     },
-    postOrdinary(url,handleType){
+    ordinary(url,handleType,method){
         return ajax({
-            method: 'post',
+            method,
             url,
             ...handleType,
             transformResponse: [(data)=>{
@@ -134,9 +145,9 @@ export default {
             }
         )
     },
-    postDownload(url, handleType){
+    download(url, handleType,method){
         return ajax({
-            method: 'post',
+            method,
             url,
             ...handleType,
             responseType : 'blob'
