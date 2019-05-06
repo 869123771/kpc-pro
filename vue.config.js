@@ -151,6 +151,17 @@ module.exports = {
         //   .options({
         //       name: path.join('../assets/', 'img/[name].[ext]')
         //   })
+
+        config.module
+            .rule("vue")
+            .use("vue-loader")
+            .loader("vue-loader")
+            .tap(options => {
+                // modify the options...
+                options.compilerOptions.preserveWhitespace = false;
+                return options;
+            });
+
     },
     css: {
         modules: false,

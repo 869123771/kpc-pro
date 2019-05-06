@@ -45,7 +45,10 @@
             <Button @click="add">
                 <i class="k-icon ion-plus"></i>新增
             </Button>
-            <Dropdown trigger="click" class="px-2">
+            <Button @click="del" v-show = "show.delete" class = "ml-2">
+                <i class="k-icon ion-android-delete"></i>删除
+            </Button>
+            <Dropdown trigger="click" class = "ml-2">
                 <Button>
                     更多操作
                     <Icon class="ion-ios-arrow-down"/>
@@ -66,6 +69,7 @@
                     type="grid"
                     @$change:sort="_onSort"
                     @$change:group="_onGroup"
+                    @$change:checked = "_onCheck"
                     :rowCheckable="false"
             />
             <div class="my-3 text-center">
@@ -92,6 +96,7 @@
                 <Button type="primary" class="mx-2 my-3" @click="confirm">确定</Button>
             </div>
         </Drawer>
+        <comfirm-dialog></comfirm-dialog>
     </div>
 </template>
 
@@ -100,6 +105,8 @@
         Form, FormItem, Select, Option, Input, Tag, Dropdown, DropdownMenu, DropdownItem,
         Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog, Drawer, Tooltip
     } from 'kpc'
+    import OperBtn from 'components/table/OperBtn'
+    import ComfirmDialog from 'components/dialog/ComfirmDialog'
     import {apiList, http, constant} from '@/libs'
     import {downloadFile} from '@/libs/util'
     import Read from './Read'
@@ -109,7 +116,7 @@
         name: "Index",
         components: {
             Form, FormItem, Select, Option, Input, Datepicker, Dropdown, DropdownMenu, DropdownItem,
-            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip
+            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip,ComfirmDialog
         },
         data() {
             return {
@@ -131,30 +138,25 @@
                             title: '操作',
                             width: '70',
                             template: row => {
-                                let props = {
-                                    view: {
-                                        style: {
-                                            cursor: 'pointer'
-                                        },
-                                        class: "ion-eye",
+                                let btnInfo = [
+                                    {
+                                        content : '查看',
+                                        className : 'ion-eye',
+                                        event : ()=>{
+                                            this.view(row)
+                                        }
                                     },
-                                    edit: {
-                                        style: {
-                                            cursor: 'pointer',
-                                            paddingLeft: '0.5rem'
-                                        },
-                                        class: "ion-edit",
+                                    {
+                                        content : '修改',
+                                        className : 'ion-edit',
+                                        event : ()=>{
+                                            this.edit(row)
+                                        }
                                     }
-                                }
-
-                                return <span>
-                                            <Tooltip placement="top" content="查看">
-                                                <Icon {...props.view} onClick={() => this.view(row)}></Icon>
-                                            </Tooltip><Tooltip placement="top" content="编辑">
-                                                <Icon {...props.edit} onClick={() => this.edit(row)}></Icon>
-                                            </Tooltip>
-                                        </span>
-
+                                ]
+                                return(
+                                    <OperBtn btnInfo = {btnInfo}></OperBtn>
+                                )
                             }
                         },
                         username: {
@@ -213,12 +215,16 @@
                             title: '创建时间',
                         },
                     },
-                    datas: []
+                    datas: [],
+                    selection : []
                 },
                 page: {
                     total: 0,
                     pageNum: 1,
                     pageSize: 10
+                },
+                show : {
+                    delete : false
                 },
                 modal: {
                     show: false,
@@ -263,6 +269,24 @@
                 }
                 this.queryList()
             },
+            _onCheck(instance){
+                let selection = instance.getCheckedData()
+                if(selection.length){
+                    this.show = {
+                        ...this.show,
+                        delete : true
+                    }
+                }else{
+                    this.show = {
+                        ...this.show,
+                        delete : false
+                    }
+                }
+                this.table = {
+                    ...this.table,
+                    selection
+                }
+            },
             async downLoadFile() {
                 let {createTime, ...res} = this.form
                 let params = {
@@ -299,6 +323,7 @@
                 this.queryList()
             },
             view(row) {
+                debugger;
                 this.modal = {
                     ...this.modal,
                     show: true
