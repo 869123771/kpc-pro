@@ -96,14 +96,14 @@
                 <Button type="primary" class="mx-2 my-3" @click="confirm">确定</Button>
             </div>
         </Drawer>
-        <comfirm-dialog></comfirm-dialog>
+        <comfirm-dialog :comfirmDialog = "dialog" @confirm = "confirmDel"></comfirm-dialog>
     </div>
 </template>
 
 <script>
     import {
         Form, FormItem, Select, Option, Input, Tag, Dropdown, DropdownMenu, DropdownItem,
-        Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog, Drawer, Tooltip
+        Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog, Drawer, Tooltip,Message
     } from 'kpc'
     import OperBtn from 'components/table/OperBtn'
     import ComfirmDialog from 'components/dialog/ComfirmDialog'
@@ -116,7 +116,7 @@
         name: "Index",
         components: {
             Form, FormItem, Select, Option, Input, Datepicker, Dropdown, DropdownMenu, DropdownItem,
-            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip,ComfirmDialog
+            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip,Message,ComfirmDialog
         },
         data() {
             return {
@@ -237,6 +237,9 @@
                     type: Modify,
                     datas : {}
                 },
+                dialog : {
+                    show :false,
+                }
             }
         },
         methods: {
@@ -287,12 +290,31 @@
                     selection
                 }
             },
+            del(){
+                this.dialog = {
+                    ...this.dialog,
+                    show : true
+                }
+            },
+            async confirmDel(){
+                debugger;
+                let params = this.table.selection.map(item=>item.userId).join(',')
+                let {code,data} = await http.delete(`${apiList.sys_mgr_user_mgr_query}/${params}`)
+                if(code === constant.SUCCESS){
+                    Message.success('删除成功')
+                    this.queryList()
+                }
+                this.dialog = {
+                    ...this.dialog,
+                    show : false
+                }
+            },
             async downLoadFile() {
                 let {createTime, ...res} = this.form
                 let params = {
                     ...res
                 }
-                let {code, data} = await http.postDownload(apiList.sys_mgr_user_mgr_export, {params})
+                let {code, data} = await http.download(apiList.sys_mgr_user_mgr_export, {params})
                 if (code === constant.SUCCESS) {
                     downloadFile(data, '用户信息')
                 }

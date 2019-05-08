@@ -1,8 +1,8 @@
 <template>
-    <Dialog v-model="comfirmDialog.show" :title="comfirmDialog.title" size="mini">
+    <Dialog v-model="dialog.show" :title="dialog.title" size="mini" :ok = "confirm">
         <Icon class = "ion-information-circled icon-tip"></Icon>
         <span class = "message">
-            {{comfirmDialog.message}}
+            {{dialog.message}}
         </span>
     </Dialog>
 </template>
@@ -14,14 +14,32 @@
         components : {
             Dialog,Icon
         },
+        watch : {
+            comfirmDialog : {
+                handler(props){
+                    let {title,message} = props
+                    this.dialog = {
+                        ...props,
+                        title : title || '提示',
+                        message : message || '确认要删除吗'
+                    }
+                },
+                immediate : true,
+            }
+        },
+        data(){
+            return {
+                dialog : {}
+            }
+        },
         props : {
             comfirmDialog : {
-                type : Object,
-                default : {
-                    title : '提示',
-                    show : true,
-                    message : '确认要删除吗'
-                }
+                type : Object
+            }
+        },
+        methods : {
+            confirm(){
+                this.$emit('confirm')
             }
         }
     }

@@ -1,11 +1,3 @@
-<!--<template>
-    <div class = "oper-btn">
-        <Tooltip placement="top" content="查看">
-            <Icon {...props.view} onClick={() => this.view(row)}></Icon>
-        </Tooltip>
-    </div>
-</template>-->
-
 <script>
     import {Tooltip,Icon} from 'kpc'
     export default {

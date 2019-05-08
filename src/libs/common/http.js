@@ -90,7 +90,7 @@ ajax.interceptors.response.use(response => {
 }
 
 export default {
-    post(url, data,responseType) {
+    post(url, data = {},responseType) {
         let handleType = this.handleType(data)
         let method = 'post'
         if(responseType){
@@ -99,13 +99,17 @@ export default {
             return this.ordinary(url,handleType,method)
         }
     },
-    put(url,data){
+    put(url,data = {}){
         let handleType = this.handleType(data)
         let method = 'put'
         return this.ordinary(url,handleType,method)
     },
+    delete(url,data = {}){
+        let handleType = this.handleType(data)
+        let method = 'delete'
+        return this.ordinary(url,handleType,method)
+    },
     handleType(data){
-        debugger;
         let handleType
         let {params} = {} = data
         if(params && typeof params === 'object'){

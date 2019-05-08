@@ -151,17 +151,6 @@ module.exports = {
         //   .options({
         //       name: path.join('../assets/', 'img/[name].[ext]')
         //   })
-
-        config.module
-            .rule("vue")
-            .use("vue-loader")
-            .loader("vue-loader")
-            .tap(options => {
-                // modify the options...
-                options.compilerOptions.preserveWhitespace = false;
-                return options;
-            });
-
     },
     css: {
         modules: false,
@@ -222,6 +211,7 @@ module.exports = {
             "/": {
                 ws: false,
                 target: process.env.VUE_APP_BASE_API || "http://localhost:9527", //"http://111.230.157.133:9527",
+                //target: process.env.VUE_APP_BASE_API || "http://111.230.157.133:9527",
                 changeOrigin: true,
             }
         },
