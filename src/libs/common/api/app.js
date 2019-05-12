@@ -6,5 +6,6 @@ export default {
     sys_mgr_user_mgr_username_check : '/user/check',
     sys_mgr_role_mgr_query : '/role',
     sys_mgr_role_mgr_exprot : '/role/excel',
-
+    sys_mgr_menu_mgr : '/menu',
+    sys_mgr_role_menu : '/role/menu'
 }

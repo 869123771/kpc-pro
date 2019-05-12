@@ -314,7 +314,7 @@
                 let params = {
                     ...res
                 }
-                let {code, data} = await http.download(apiList.sys_mgr_user_mgr_export, {params})
+                let {code, data} = await http.post(apiList.sys_mgr_user_mgr_export, {params},true)
                 if (code === constant.SUCCESS) {
                     downloadFile(data, '用户信息')
                 }

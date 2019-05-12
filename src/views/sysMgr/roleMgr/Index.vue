@@ -42,25 +42,31 @@
                     resizable
                     type="grid"
                     @$change:sort="_onSort"
+                    :rowCheckable="false"
             />
             <div class="my-3 text-center">
                 <Pagination :total="page.total" :current="page.pageNum" :limit="page.pageSize" @change="pageChange"
                             size="small"/>
             </div>
         </Row>
-        <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" hideClose ref="addRole">
-            <component :is = "drawer.type" :form = "drawer.form" ref = "_drawerBody"></component>
-            <div slot="footer-wrapper" class = "text-center">
-                <Tooltip content="确定放弃编辑？"
-                         confirm
-                         trigger="click"
-                         @ok="ok"
-                >
-                    <Button>取消</Button>
-                </Tooltip>
-                <Button type = "primary" class = "mx-2 my-3">确定</Button>
-            </div>
-        </Drawer>
+        <vue-scroll>
+            <Row class = "_draw"></Row>
+            <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" container = "_draw" :hideClose = "drawer.hideClose" ref="addRole">
+                <component :is = "drawer.type" :role-info = "drawer.data" ref = "_drawer"></component>
+                <div slot="footer-wrapper" class = "text-center">
+                    <template v-if = "drawer.hideClose">
+                        <Tooltip content="确定放弃编辑？"
+                                 confirm
+                                 trigger="click"
+                                 @ok="ok"
+                        >
+                            <Button>取消</Button>
+                        </Tooltip>
+                        <Button type = "primary" class = "mx-2 my-3" @click = "save">确定</Button>
+                    </template>
+                </div>
+            </Drawer>
+        </vue-scroll>
 
     </div>
 </template>
@@ -70,7 +76,9 @@
         Input, Button, Datepicker,Table,Pagination,Icon,Tooltip} from 'kpc'
     import {apiList,http,constant} from '@/libs'
     import {downloadFile} from '@/libs/util'
-    import Add from './Add'
+    import Modify from './Modify'
+    import OperBtn from 'components/table/OperBtn'
+    import Read from './Read'
     export default {
         name: "Index",
         components: {
@@ -93,13 +101,25 @@
                             title: '操作',
                             width: '70',
                             template: row => {
-                                let props = {
-                                    style: {
-                                        cursor: 'pointer'
+                                let btnInfo = [
+                                    {
+                                        content : '查看',
+                                        className : 'ion-eye',
+                                        event : ()=>{
+                                            this.view(row)
+                                        }
                                     },
-                                    class: "ion-eye",
-                                }
-                                return <Icon {...props} onClick={() => this.view(row)}></Icon>
+                                    {
+                                        content : '修改',
+                                        className : 'ion-edit',
+                                        event : ()=>{
+                                            this.edit(row)
+                                        }
+                                    }
+                                ]
+                                return(
+                                    <OperBtn btnInfo = {btnInfo}></OperBtn>
+                                )
                             }
                         },
                         roleName: {
@@ -127,8 +147,9 @@
                 drawer : {
                     show : false,
                     title : '新增角色',
-                    type : Add,
-                    form : {}
+                    hideClose : true,
+                    type : Modify,
+                    data : {}
                 },
             }
         },
@@ -147,6 +168,29 @@
                     datas,
                     sort
                 }
+            },
+            view(row){
+                this.drawer = {
+                    ...this.drawer,
+                    show : true,
+                    title : '角色信息',
+                    hideClose : false,
+                    type : Read,
+                    data : row
+                }
+            },
+            edit(row){
+                this.drawer = {
+                    ...this.drawer,
+                    show : true,
+                    title : '修改角色',
+                    hideClose : true,
+                    type : Modify,
+                    data : row
+                }
+            },
+            save(){
+                this.$refs._drawer.save()
             },
             pageChange({current: pageNum, limit: pageSize}) {
                 this.page = {
@@ -168,7 +212,11 @@
             add(){
                 this.drawer = {
                     ...this.drawer,
-                    show : true
+                    show : true,
+                    title : '新增角色',
+                    hideClose : true,
+                    type : Modify,
+                    data : {}
                 }
             },
             reset(){
@@ -208,7 +256,7 @@
                 let params = {
                     ...res
                 }
-                let {code,data} = await http.postDownload(apiList.sys_mgr_role_mgr_exprot,{params})
+                let {code,data} = await http.post(apiList.sys_mgr_role_mgr_exprot,{params},true)
                 if(code === constant.SUCCESS){
                     downloadFile(data,'角色信息')
                 }
