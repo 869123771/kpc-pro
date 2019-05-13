@@ -14,6 +14,17 @@ const resolve = dir => path.join(__dirname, dir);
 const IS_PROD = ["production", "prod"].includes(process.env.NODE_ENV);
 const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i;
 
+
+// 添加stylus规则
+// const addStylusResource = rule => {
+//   rule
+//     .use('style-resouce')
+//     .loader('style-resources-loader')
+//     .options({
+//       patterns: [resolve('src/assets/stylus/variable.styl')]
+//     })
+// }
+
 module.exports = {
     baseUrl: IS_PROD ? process.env.VUE_APP_SRC || "/" : "./", // 默认'/'，部署应用包时的基本 URL
     outputDir: process.env.outputDir || "dist", // 'dist', 生产环境构建文件的目录
@@ -125,10 +136,6 @@ module.exports = {
             .set("kpc", 'kpc/@stylus')
             .set("intact$", 'intact-vue')
 
-        const entry = config.entry('app')
-        entry
-            .add('@babel/polyfill')
-            .end()
 
         // 打包分析
         if (process.env.IS_ANALYZ) {
