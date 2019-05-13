@@ -50,8 +50,7 @@
             </div>
         </Row>
         <vue-scroll>
-            <Row class = "_draw"></Row>
-            <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" container = "_draw" :hideClose = "drawer.hideClose" ref="addRole">
+            <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" container = "._drawer" :hideClose = "drawer.hideClose" ref="addRole">
                 <component :is = "drawer.type" :role-info = "drawer.data" ref = "_drawer"></component>
                 <div slot="footer-wrapper" class = "text-center">
                     <template v-if = "drawer.hideClose">

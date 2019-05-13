@@ -57,20 +57,6 @@ module.exports = {
             );
 
             plugins.push(
-                new UglifyJsPlugin({
-                    uglifyOptions: {
-                        compress: {
-                            warnings: false,
-                            drop_console: true,
-                            drop_debugger: false,
-                            pure_funcs: ["console.log"] //移除console
-                        }
-                    },
-                    sourceMap: false,
-                    parallel: true
-                })
-            );
-            plugins.push(
                 new CompressionWebpackPlugin({
                     filename: "[path].gz[query]",
                     algorithm: "gzip",

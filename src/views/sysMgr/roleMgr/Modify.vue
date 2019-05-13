@@ -13,14 +13,15 @@
                     <Input type="textarea" v-model="form.remark"/>
                 </FormItem>
                 <FormItem label="权限选择" model="form.menuId"
-                          :rules="{required: true}"
+                          :rules="tree.checkedKeys.length ? {} : {required: true}"
                           :messages="{required: '必填'}"
                 >
                     <Tree :data="tree.data"
                           checkbox
                           ref="tree"
-                          :checkedKeys.sync="tree.checkedKeys"
+                          :selectedKeys.sync="tree.selectedKeys"
                           :expandedKeys = "tree.expandedKeys"
+                          @$change:checkedKeys = "checked"
                     />
                 </FormItem>
             </Form>
@@ -51,8 +52,9 @@
                 },
                 tree: {
                     data: [],
-                    checkedKeys: [],
-                    expandedKeys : []
+                    selectedKeys: [],
+                    expandedKeys : [],
+                    checkedKeys : []
                 }
             }
         },
@@ -84,6 +86,12 @@
                 })
                 return Menus
             },
+            checked(tree,checkedKeys){
+              this.tree = {
+                  ...this.tree,
+                  checkedKeys
+              }
+            },
             async save() {
                 debugger;
                 console.log(this.$refs.tree.getCheckedData());
@@ -98,7 +106,7 @@
                 if (code === constant.SUCCESS) {
                     this.tree = {
                         ...this.tree,
-                        checkedKeys : data,
+                        selectedKeys : data,
                     }
                 }
             },
