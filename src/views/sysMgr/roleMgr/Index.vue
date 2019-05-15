@@ -23,8 +23,8 @@
         <Row class = "mt-3">
             <Button @click = "add">
                 <i class = "k-icon ion-plus"></i>新增</Button>
-            <Dropdown trigger="click" class = "px-2">
-                <Button>
+            <Dropdown trigger="click">
+                <Button class = "ml-2">
                     更多操作<Icon class="ion-ios-arrow-down" />
                 </Button>
                 <DropdownMenu>
@@ -99,6 +99,7 @@
                         oper: {
                             title: '操作',
                             width: '70',
+                            align : 'center',
                             template: row => {
                                 let btnInfo = [
                                     {
@@ -123,16 +124,20 @@
                         },
                         roleName: {
                             title: '角色',
+                            align : 'center',
                         },
                         remark: {
                             title: '描述',
+                            align : 'center',
                         },
                         createTime: {
                             title: '创建时间',
+                            align : 'center',
                             sortable: true
                         },
                         modifyTime: {
                             title: '修改时间',
+                            align : 'center',
                             sortable: true
                         },
                     },

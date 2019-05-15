@@ -1,7 +1,7 @@
 <template>
     <div class="login h-100">
         <vue-particle-line>
-            <Row type="flex" justify="center" align="middle" class="z-1000 h-100 px-3">
+            <Row type="flex" justify="center" align="middle" class="z-999 h-100 px-3">
                 <Col sm="12" xs="24" lg="6">
                     <Collapse v-model="collapse">
                         <CollapseItem title="login" value="loginItem">
@@ -108,8 +108,8 @@
 <style scoped lang="less">
     .login {
         background-color: #283644;
-        .z-1000 {
-            z-index: 1000;
+        .z-999 {
+            z-index: 999;
         }
         .k-collapse {
             background-color: #f8f9fa;

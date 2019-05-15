@@ -48,8 +48,8 @@
             <Button @click="del" v-show = "show.delete" class = "ml-2">
                 <i class="k-icon ion-android-delete"></i>删除
             </Button>
-            <Dropdown trigger="click" class = "ml-2">
-                <Button>
+            <Dropdown trigger="click">
+                <Button class = "ml-2">
                     更多操作
                     <Icon class="ion-ios-arrow-down"/>
                 </Button>
@@ -137,6 +137,7 @@
                         oper: {
                             title: '操作',
                             width: '70',
+                            align : 'center',
                             template: row => {
                                 let btnInfo = [
                                     {
@@ -162,10 +163,11 @@
                         username: {
                             title: '用户名',
                             sortable: true,
-                            class: 'text-center'
+                            align : 'center',
                         },
                         ssex: {
                             title: '性别',
+                            align : 'center',
                             template: (data) => {
                                 let {ssex} = data
                                 let title = '保密'
@@ -182,16 +184,20 @@
                         },
                         email: {
                             title: '邮箱',
+                            align : 'center',
                         },
                         deptName: {
                             title: '部门',
+                            align : 'center',
                             sortable: true
                         },
                         mobile: {
                             title: '电话',
+                            align : 'center',
                         },
                         status: {
                             title: '状态',
+                            align : 'center',
                             template: (data) => {
                                 let {status} = data
                                 let tag
@@ -213,6 +219,7 @@
                         },
                         createTime: {
                             title: '创建时间',
+                            align : 'center',
                         },
                     },
                     datas: [],
