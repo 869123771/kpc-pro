@@ -23,6 +23,9 @@
         <Row class = "mt-3">
             <Button @click = "add">
                 <i class = "k-icon ion-plus"></i>新增</Button>
+            <Button @click="del" v-show = "show.delete" class = "ml-2">
+                <i class="k-icon ion-android-delete"></i>删除
+            </Button>
             <Dropdown trigger="click">
                 <Button class = "ml-2">
                     更多操作<Icon class="ion-ios-arrow-down" />
@@ -42,6 +45,7 @@
                     resizable
                     type="grid"
                     @$change:sort="_onSort"
+                    @$change:checked = "_onCheck"
                     :rowCheckable="false"
             />
             <div class="my-3 text-center">
@@ -49,9 +53,9 @@
                             size="small"/>
             </div>
         </Row>
-        <vue-scroll>
-            <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" container = "._drawer" :hideClose = "drawer.hideClose" ref="addRole">
-                <component :is = "drawer.type" :role-info = "drawer.data" ref = "_drawer"></component>
+
+            <Drawer v-model="drawer.show" :title="drawer.title" :closable = "false" :hideClose = "drawer.hideClose" ref="addRole">
+                <component :is = "drawer.type" :role-info = "drawer.data" ref = "_drawer" @closeAndFlush = "closeAndFlush"></component>
                 <div slot="footer-wrapper" class = "text-center">
                     <template v-if = "drawer.hideClose">
                         <Tooltip content="确定放弃编辑？"
@@ -65,24 +69,25 @@
                     </template>
                 </div>
             </Drawer>
-        </vue-scroll>
-
+        <comfirm-dialog :comfirmDialog = "dialog" @confirm = "confirmDel"></comfirm-dialog>
     </div>
 </template>
 
 <script>
     import {Row, Col, Form, FormItem, Dropdown,DropdownMenu,DropdownItem,Drawer,
-        Input, Button, Datepicker,Table,Pagination,Icon,Tooltip} from 'kpc'
+        Input, Button, Datepicker,Table,Pagination,Icon,Tooltip,Message} from 'kpc'
     import {apiList,http,constant} from '@/libs'
     import {downloadFile} from '@/libs/util'
     import Modify from './Modify'
     import OperBtn from 'components/table/OperBtn'
+    import ComfirmDialog from 'components/dialog/ComfirmDialog'
     import Read from './Read'
     export default {
         name: "Index",
         components: {
             Row, Col, Form, FormItem,Dropdown,DropdownMenu,DropdownItem,Drawer,
-            Input, Button, Datepicker,Table,Pagination,Icon,Tooltip
+            Input, Button, Datepicker,Table,Pagination,Icon,Tooltip,Message,
+            ComfirmDialog
         },
         data() {
             return {
@@ -95,6 +100,7 @@
                 table: {
                     loading: false,
                     sort: {},
+                    selection : [],
                     columns: {
                         oper: {
                             title: '操作',
@@ -148,6 +154,12 @@
                     pageNum: 1,
                     pageSize: 10
                 },
+                show : {
+                    delete : false
+                },
+                dialog : {
+                    show :false,
+                },
                 drawer : {
                     show : false,
                     title : '新增角色',
@@ -173,6 +185,43 @@
                     sort
                 }
             },
+            _onCheck(instance){
+                let selection = instance.getCheckedData()
+                if(selection.length){
+                    this.show = {
+                        ...this.show,
+                        delete : true
+                    }
+                }else{
+                    this.show = {
+                        ...this.show,
+                        delete : false
+                    }
+                }
+                this.table = {
+                    ...this.table,
+                    selection
+                }
+            },
+            del(){
+                this.dialog = {
+                    ...this.dialog,
+                    show : true
+                }
+            },
+            async confirmDel(){
+                debugger;
+                let params = this.table.selection.map(item=>item.roleId).join(',')
+                let {code,data} = await http.delete(`${apiList.sys_mgr_role_mgr_query}/${params}`)
+                if(code === constant.SUCCESS){
+                    Message.success('删除成功')
+                    this.queryList()
+                }
+                this.dialog = {
+                    ...this.dialog,
+                    show : false
+                }
+            },
             view(row){
                 this.drawer = {
                     ...this.drawer,
@@ -195,6 +244,13 @@
             },
             save(){
                 this.$refs._drawer.save()
+            },
+            closeAndFlush(){
+                this.drawer = {
+                    ...this.drawer,
+                    show : false,
+                }
+                this.queryList()
             },
             pageChange({current: pageNum, limit: pageSize}) {
                 this.page = {
@@ -276,7 +332,7 @@
     .role-mgr {
 
     }
-    .k-dialog{
+    .k-drawer .k-dialog{
         width: 35%;
     }
 </style>

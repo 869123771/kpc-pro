@@ -27,11 +27,14 @@
             </div>
             <div>
                 <Tree :data="tree.data"
-                      checkbox
                       ref="tree"
                       :checkedKeys.sync="tree.checkedKeys"
                       :expandedKeys = "tree.expandedKeys"
-                />
+                >
+                    <template slot="label" slot-scope="data, node">
+                        <tree-content-render :tree-props="{data,node,tree}"></tree-content-render>
+                    </template>
+                </Tree>
             </div>
         </Row>
     </div>
@@ -40,10 +43,11 @@
 <script>
     import {Row,Icon,Tree} from 'kpc'
     import {apiList,http,constant} from '@/libs'
+    import TreeContentRender from './component/TreeContentRender'
     export default {
         name: "Read",
         components : {
-            Row,Icon,Tree
+            Row,Icon,Tree,TreeContentRender
         },
         props : {
             roleInfo : {

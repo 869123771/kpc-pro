@@ -17,12 +17,14 @@
                           :messages="{required: '必填'}"
                 >
                     <Tree :data="tree.data"
-                          checkbox
                           ref="tree"
-                          :selectedKeys.sync="tree.selectedKeys"
-                          :expandedKeys = "tree.expandedKeys"
-                          @$change:checkedKeys = "checked"
-                    />
+                          :expandedKeys.sync="tree.expandedKeys"
+                    >
+                        <template slot="label" slot-scope="data, node">
+                            <tree-content-render :tree-props="{data,node,tree}"
+                                                 @checkedKeys="checkedKeys"></tree-content-render>
+                        </template>
+                    </Tree>
                 </FormItem>
             </Form>
         </Row>
@@ -30,13 +32,15 @@
 </template>
 
 <script>
-    import {Row, Col, Form, FormItem, Input, Tree} from 'kpc'
+    import {Row, Col, Form, FormItem, Input, Tree, Checkbox,Message} from 'kpc'
     import {apiList, http, constant} from "@/libs";
+    import TreeContentRender from './component/TreeContentRender'
 
     export default {
         name: "Modify",
         components: {
-            Row, Col, Form, FormItem, Input, Tree
+            Row, Col, Form, FormItem, Input, Tree, Checkbox,Message,
+            TreeContentRender
         },
         props: {
             roleInfo: {
@@ -52,27 +56,35 @@
                 },
                 tree: {
                     data: [],
-                    selectedKeys: [],
-                    expandedKeys : [],
-                    checkedKeys : []
+                    expandedKeys: [],
+                    checkedKeys: []
                 }
             }
         },
-        watch : {
-            roleInfo : {
-                handler(props){
+        watch: {
+            roleInfo: {
+                handler(props) {
                     let {roleId} = props
-                    if(roleId){
+                    if (roleId) {
                         this.form = {
                             ...props
                         }
                         this.getCheckedMenu()
                     }
                 },
-                immediate : true
+                immediate: true
             }
         },
         methods: {
+            checkedKeys(checkedKeys) {
+                let expandedKeys = this.$refs.tree.get('expandedKeys')
+                debugger;
+                this.tree = {
+                    ...this.tree,
+                    checkedKeys,
+                    expandedKeys
+                }
+            },
             handleMenu(menus) {
                 let Menus = menus.map(menu => {
                     let {children, text} = menu
@@ -86,40 +98,50 @@
                 })
                 return Menus
             },
-            checked(tree,checkedKeys){
-              this.tree = {
-                  ...this.tree,
-                  checkedKeys
-              }
-            },
             async save() {
                 debugger;
-                console.log(this.$refs.tree.getCheckedData());
+                let {roleId} = this.roleInfo
+                let {roleName, remark} = this.form
+                let {checkedKeys} = this.tree
+                let params = {
+                    roleName, remark,
+                    roleId,
+                    menuId: checkedKeys.join(',')
+                }
                 let valid = await this.$refs.form.validate()
                 if (valid) {
-
+                    let res
+                    if(roleId){
+                        res = await http.put(apiList.sys_mgr_role_mgr_query, {params})
+                    }else{
+                        res = await http.post(apiList.sys_mgr_role_mgr_query, {params})
+                    }
+                    if (res.code === constant.SUCCESS) {
+                        Message.success('操作成功')
+                        this.$emit('closeAndFlush')
+                    }
                 }
             },
-            async getCheckedMenu(){
-                let {roleId} =  this.roleInfo
+            async getCheckedMenu() {
+                let {roleId} = this.roleInfo
                 let {code, data = []} = await http.get(`${apiList.sys_mgr_role_menu}/${roleId}`)
                 if (code === constant.SUCCESS) {
                     this.tree = {
                         ...this.tree,
-                        selectedKeys : data,
+                        checkedKeys: data,
                     }
                 }
             },
             async getMenuInfo() {
                 let {code, data = []} = await http.get(apiList.sys_mgr_menu_mgr)
                 debugger;
-                let {rows: {children},ids} = data
+                let {rows: {children}, ids} = data
                 if (code === constant.SUCCESS) {
                     let MenuData = this.handleMenu(children)
                     this.tree = {
                         ...this.tree,
                         data: MenuData,
-                        expandedKeys : this.roleInfo.roleId ? ids : []
+                        expandedKeys: this.roleInfo.roleId ? ids : undefined
                     }
                 }
             }
