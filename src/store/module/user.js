@@ -20,7 +20,7 @@ export default {
         },
         SET_PERMISSIONS(state, permissions) {
             localSave('PERMISSIONS', permissions)
-            state.expireTime = permissions
+            state.permissions = permissions
         },
         SET_ROLES(state, roles) {
             localSave('ROLES', roles)

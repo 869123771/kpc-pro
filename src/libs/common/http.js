@@ -23,10 +23,13 @@ ajax.interceptors.request.use(config => {
 ajax.interceptors.response.use(response => {
     return response
 }, error => {
+    console.log(error)
+    debugger;
     return Promise.resolve(error.response)
 })
 
  const checkStatus = (response) => {
+    debugger;
     let { status: httpStatus, data: { message ,code ,data} } = response
     let httpStatusList = [200, 304, 400]
     let httpMsg

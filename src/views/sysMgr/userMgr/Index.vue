@@ -143,6 +143,7 @@
                                     {
                                         content : '查看',
                                         className : 'ion-eye',
+                                        permission : 'user:view',
                                         event : ()=>{
                                             this.view(row)
                                         }
@@ -150,6 +151,7 @@
                                     {
                                         content : '修改',
                                         className : 'ion-edit',
+                                        permission : 'user:update',
                                         event : ()=>{
                                             this.edit(row)
                                         }

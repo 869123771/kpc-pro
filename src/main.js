@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+import '@/libs/common/install'
+
 Vue.config.productionTip = false
 
 import vuescroll from 'vuescroll'
