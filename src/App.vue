@@ -6,7 +6,7 @@
     </div>
 </template>
 <script>
-    import 'bootstrap-scss/bootstrap.scss';
+    import 'tailwindcss/tailwind.css'
     import './style/common.less'
     import '@/assets/fonts/iconfont/iconfont.css'
     export default {

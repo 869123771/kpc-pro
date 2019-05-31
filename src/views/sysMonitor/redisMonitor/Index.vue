@@ -1,17 +1,31 @@
 <template>
     <div class = "index">
-        <v-chart :options="options" auto-resize></v-chart>
+        <Row>
+            <Col span = "12">
+                <v-chart :options="options" auto-resize ref = "memory"></v-chart>
+            </Col>
+        </Row>
     </div>
 </template>
 
 <script>
+    import {Row,Col} from 'kpc'
     import ECharts from 'vue-echarts/components/ECharts'
     import 'echarts/lib/chart/line'
     import 'echarts/lib/component/tooltip';
+    import {http,apiList,constant} from '@/libs'
+    import dayjs from 'dayjs'
+    let customParams = {
+        minMemory : 1e10,
+        maxMemory : -1e10,
+        xData : [],
+        yData : []
+    }
     export default {
         name: "Index",
         components: {
-            'v-chart': ECharts
+            'v-chart': ECharts,
+            Row,Col
         },
         data(){
             return {
@@ -29,7 +43,7 @@
                         }
                     },
                     legend: {
-                        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+                        data: ['邮件营销']
                     },
                     grid: {
                         left: '3%',
@@ -46,7 +60,9 @@
                     ],
                     yAxis: [
                         {
-                            type: 'value'
+                            type: 'value',
+                            min : '',
+                            max : ''
                         }
                     ],
                     series: [
@@ -57,43 +73,95 @@
                             areaStyle: {},
                             data: [120, 132, 101, 134, 90, 230, 210]
                         },
-                        {
-                            name: '联盟广告',
-                            type: 'line',
-                            stack: '总量',
-                            areaStyle: {},
-                            data: [220, 182, 191, 234, 290, 330, 310]
-                        },
-                        {
-                            name: '视频广告',
-                            type: 'line',
-                            stack: '总量',
-                            areaStyle: {},
-                            data: [150, 232, 201, 154, 190, 330, 410]
-                        },
-                        {
-                            name: '直接访问',
-                            type: 'line',
-                            stack: '总量',
-                            areaStyle: {normal: {}},
-                            data: [320, 332, 301, 334, 390, 330, 320]
-                        },
-                        {
-                            name: '搜索引擎',
-                            type: 'line',
-                            stack: '总量',
-                            label: {
-                                normal: {
-                                    show: true,
-                                    position: 'top'
-                                }
-                            },
-                            areaStyle: {normal: {}},
-                            data: [820, 932, 901, 934, 1290, 1330, 1320]
-                        }
                     ]
                 }
             }
+        },
+        methods : {
+            async redisMemory(){
+                debugger;
+                let {xData,yData} = customParams
+                let time =  dayjs().format('hh:mm:ss')
+                let {code,data:{used_memory}} = await http.get(apiList.sys_monitor_redis_memory)
+                if(code === constant.SUCCESS){
+                    debugger;
+                    let currentMemory = used_memory / 1000
+
+                    xData = [
+                        ...xData,
+                        time
+                    ]
+                    yData = [
+                        ...yData,
+                        currentMemory
+                    ]
+
+                    if(xData.length >= 6){
+                        xData.shift()
+                    }
+                    if(yData.length >= 6){
+                        yData.shift()
+                    }
+                    let minMemory = yData.sort()[0]
+                    let maxMemory = yData.sort()[yData.length - 1]
+                    customParams = {
+                        ...customParams,
+                        xData,yData
+                    }
+                    console.log('min' + minMemory)
+                    console.log('max' + maxMemory)
+                    this.options = {
+                        ...this.options,
+                        xAxis : [
+                            {
+                                type: 'category',
+                                boundaryGap: false,
+                                data: xData
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value',
+                                min : minMemory,
+                                max : maxMemory,
+                            }
+                        ],
+                        series: [
+                            {
+                                type: 'line',
+                                smooth: true,
+                                itemStyle  : {
+                                    borderWidth : 0
+                                },
+                                lineStyle : {
+                                    color : '#008ffb',
+                                    width : 5
+                                },
+                                areaStyle: {
+                                    color : '#b1ddfd'
+                                },
+                                data: yData
+                            },
+                        ]
+                    }
+                    console.log(this.$refs.memory)
+                    this.$refs.memory.refresh()
+                }
+            },
+            refreshChart(){
+                this.timer = setInterval(()=>{
+                    this.redisMemory()
+                },3000)
+
+            }
+        },
+        beforeDestroy () {
+            if (this.timer) {
+                clearInterval(this.timer)
+            }
+        },
+        mounted(){
+            this.refreshChart()
         }
     }
 </script>

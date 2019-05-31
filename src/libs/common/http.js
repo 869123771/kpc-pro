@@ -23,8 +23,6 @@ ajax.interceptors.request.use(config => {
 ajax.interceptors.response.use(response => {
     return response
 }, error => {
-    console.log(error)
-    debugger;
     return Promise.resolve(error.response)
 })
 

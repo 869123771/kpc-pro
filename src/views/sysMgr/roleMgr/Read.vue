@@ -1,27 +1,27 @@
 <template>
     <div class = "read">
-        <Row class = "d-flex align-items-center mt-3">
+        <Row class = "flex align-items-center mt-3">
             <div><Icon class = "ion-android-contacts"></Icon></div>
             <div class = "px-2">角色名称:</div>
             <div>{{form.roleName}}</div>
         </Row>
-        <Row class = "d-flex align-items-center mt-3">
+        <Row class = "flex align-items-center mt-3">
             <div><Icon class="ion-android-list"></Icon></div>
             <div class = "px-2">角色描述:</div>
             <div>{{form.remark}}</div>
         </Row>
-        <Row class = "d-flex align-items-center mt-3">
+        <Row class = "flex align-items-center mt-3">
             <div><Icon class = "ion-compass"></Icon></div>
             <div class = "px-2">创建时间:</div>
             <div>{{form.createTime}}</div>
         </Row>
-        <Row class = "d-flex align-items-center mt-3">
+        <Row class = "flex align-items-center mt-3">
             <div><Icon class = "ion-pinpoint"></Icon></div>
             <div class = "px-2">修改时间:</div>
             <div>{{form.modifyTime}}</div>
         </Row>
         <Row class = "mt-3">
-            <div class = "d-flex align-items-center">
+            <div class = "flex align-items-center">
                 <div><Icon class = "ion-trophy"></Icon></div>
                 <div class = "px-2">所拥有的权限:</div>
             </div>

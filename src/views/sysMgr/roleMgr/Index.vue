@@ -8,8 +8,8 @@
                     </FormItem>
                 </Col>
                 <Col span="10">
-                    <FormItem label="创建时间" model="form.createTime" class="w-100">
-                        <Datepicker range v-model="form.createTime" clearable class="w-100"/>
+                    <FormItem label="创建时间" model="form.createTime" class="w-full">
+                        <Datepicker range v-model="form.createTime" clearable class="w-full"/>
                     </FormItem>
                 </Col>
                 <Col span="4">

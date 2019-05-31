@@ -2,7 +2,7 @@
     <div class="avatar">
         <Dropdown>
             <span class = "avatar-span">
-                <img :src = "userInfo.avatarLocation + userInfo.avatar">
+                <img :src = "userInfo.avatarLocation + userInfo.avatar" class = "inline-block">
                 <span class = "px-2">{{userInfo.username}}</span>
                 <span><Icon class="ion-ios-arrow-down" /></span>
             </span>

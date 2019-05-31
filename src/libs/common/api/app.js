@@ -10,4 +10,5 @@ export default {
     sys_mgr_menu_mgr : '/menu',
     sys_mgr_dict_mgr : '/dict',
     sys_mgr_dict_mgr_exprot : '/dict/excel',
+    sys_monitor_redis_memory : 'redis/memoryInfo',
 }

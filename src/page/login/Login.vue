@@ -1,7 +1,7 @@
 <template>
-    <div class="login h-100">
+    <div class="login h-full">
         <vue-particle-line>
-            <Row type="flex" justify="center" align="middle" class="z-999 h-100 px-3">
+            <Row type="flex" justify="center" align="middle" class="z-999 h-full px-3">
                 <Col sm="12" xs="24" lg="6">
                     <Collapse v-model="collapse">
                         <CollapseItem title="login" value="loginItem">
