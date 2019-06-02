@@ -26,7 +26,6 @@
                 <div>
                     {
                         btnInfo.map(({content,className,permission,event})=>{
-                            debugger;
                             return(
                                 this.permissions.includes(permission) ?
                                 <Tooltip placement="top" content = {content}>

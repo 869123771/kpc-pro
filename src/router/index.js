@@ -14,7 +14,7 @@ import ViewsRouter from './views/'
 import FoxRouter from './fox-router';
 import Store from '@/store/'
 import {constant} from '@/libs'
-import {setToken, getToken, localSave, localRead} from '@/libs/util'
+import {setToken, getToken, localSave, localRead} from '@/libs/tools'
 
 Vue.use(VueRouter)
 
@@ -40,7 +40,6 @@ let whiteList = ['/login']
 let asyncRouter
 
 router.beforeEach((to, from, next) => {
-    debugger;
     const {meta = {},matched = []} = to;
     const {user:{roles}} = Store.state
     let userRouter = localRead('USER_ROUTER')
@@ -91,7 +90,7 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to,from) => {
-    debugger;
+
 });
 
 const go =  (to, next) => {

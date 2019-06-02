@@ -1,5 +1,4 @@
-import {localSave, localRead} from '@/libs/util'
-import { setToken} from '@/libs/util'
+import {localSave, localRead,setToken} from '@/libs/tools'
 export default {
     state: {
         token: localRead('USER_TOKEN'),

@@ -1,4 +1,4 @@
-import {localSave, localRead} from '@/libs/util'
+import {localSave, localRead} from '@/libs/tools'
 export default {
     state: {
         fullScreen : localRead('FULL_SCREEN')

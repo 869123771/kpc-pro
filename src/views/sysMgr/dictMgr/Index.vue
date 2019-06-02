@@ -78,7 +78,12 @@
                             size="small"/>
             </div>
         </Row>
-        <Drawer v-model="drawer.show" :title="drawer.title" :closable="false" hideClose ref="addUser" class="drawer">
+        <drag-drawer v-model="drawer.show"
+                     :draggable="drawer.draggable"
+                     :title="drawer.title"
+                     :placement="drawer.placement"
+                     :scrollable="true"
+        >
             <component :is="drawer.type" ref="_drawerBody" :datas = "drawer.datas" @closeFlush="closeFlush"></component>
             <div slot="footer-wrapper" class="text-center">
                 <Tooltip content="确定放弃编辑？"
@@ -90,7 +95,7 @@
                 </Tooltip>
                 <Button type="primary" class="mx-2 my-3" @click="confirm">确定</Button>
             </div>
-        </Drawer>
+        </drag-drawer>
         <comfirm-dialog :comfirmDialog = "dialog" @confirm = "confirmDel"></comfirm-dialog>
     </div>
 </template>
@@ -102,15 +107,17 @@
     } from 'kpc'
     import OperBtn from 'components/table/OperBtn'
     import ComfirmDialog from 'components/dialog/ComfirmDialog'
+    import DragDrawer from 'components/drag-drawer'
     import {apiList, http, constant} from '@/libs'
-    import {downloadFile} from '@/libs/util'
+    import {downloadFile} from '@/libs/tools'
     import Modify from './Modify'
 
     export default {
         name: "Index",
         components: {
             Form, FormItem, Select, Option, Input, Datepicker, Dropdown, DropdownMenu, DropdownItem,
-            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip,Message,ComfirmDialog
+            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip,Message,
+            ComfirmDialog,DragDrawer
         },
         data() {
             return {
@@ -177,6 +184,8 @@
                 },
                 drawer: {
                     show: false,
+                    draggable : true,
+                    placement : 'right',
                     title: '新增字典',
                     type: Modify,
                     datas : {}

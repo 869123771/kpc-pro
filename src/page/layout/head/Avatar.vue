@@ -26,7 +26,7 @@
     import {Icon,Dropdown,DropdownMenu,DropdownItem,Button} from 'kpc'
     import {mapGetters,mapActions,mapMutations} from 'vuex'
     import {constant} from '@/libs'
-    import {handleScreen} from '@/libs/util'
+    import {handleScreen} from '@/libs/tools'
     let {config: {avatarLocation,loginName}} = constant
     export default {
         name: "Avatar",

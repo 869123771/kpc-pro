@@ -83,7 +83,13 @@
             </template>
             <div slot="footer-wrapper"></div>
         </Dialog>
-        <Drawer v-model="drawer.show" :title="drawer.title" :closable="false" hideClose ref="addUser" class="drawer">
+        <drag-drawer v-model="drawer.show"
+                     :draggable="drawer.draggable"
+                     :width = "drawer.width"
+                     :title = "drawer.title"
+                     :placement = "drawer.placement"
+                     @on-resize="handleResize"
+                     :scrollable="true">
             <component :is="drawer.type" ref="_drawerBody" :datas = "drawer.datas" @closeFlush="closeFlush"></component>
             <div slot="footer-wrapper" class="text-center">
                 <Tooltip content="确定放弃编辑？"
@@ -95,7 +101,7 @@
                 </Tooltip>
                 <Button type="primary" class="mx-2 my-3" @click="confirm">确定</Button>
             </div>
-        </Drawer>
+        </drag-drawer>
         <comfirm-dialog :comfirmDialog = "dialog" @confirm = "confirmDel"></comfirm-dialog>
     </div>
 </template>
@@ -103,12 +109,13 @@
 <script>
     import {
         Form, FormItem, Select, Option, Input, Tag, Dropdown, DropdownMenu, DropdownItem,
-        Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog, Drawer, Tooltip,Message
+        Datepicker, Button, Row, Col, Icon, Table, Pagination, Dialog, Drawer,Split, Tooltip,Message
     } from 'kpc'
     import OperBtn from 'components/table/OperBtn'
     import ComfirmDialog from 'components/dialog/ComfirmDialog'
+    import DragDrawer from 'components/drag-drawer'
     import {apiList, http, constant} from '@/libs'
-    import {downloadFile} from '@/libs/util'
+    import {downloadFile} from '@/libs/tools'
     import Read from './Read'
     import Modify from './Modify'
 
@@ -116,7 +123,9 @@
         name: "Index",
         components: {
             Form, FormItem, Select, Option, Input, Datepicker, Dropdown, DropdownMenu, DropdownItem,
-            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer, Tooltip,Message,ComfirmDialog
+            Button, Row, Col, Icon, Table, Pagination, Tag, Dialog, Drawer,Split,Tooltip,Message,
+            ComfirmDialog,
+            DragDrawer
         },
         data() {
             return {
@@ -242,7 +251,10 @@
                 },
                 drawer: {
                     show: false,
-                    title: '新增角色',
+                    draggable : true,
+                    width : '',
+                    placement : 'right',
+                    title: '新增用户',
                     type: Modify,
                     datas : {}
                 },
@@ -258,6 +270,11 @@
                     ...this.form,
                     fold: !fold
                 }
+            },
+            handleResize (event) {
+                const { atMin } = event
+                /* eslint-disable */
+                console.log(atMin);
             },
             _onSort(c, sort) {
                 let {key, type} = sort
@@ -453,7 +470,7 @@
         }
     }
 
-    .drawer {
+    .k-drawer {
         .k-dialog {
             width: 35%;
         }

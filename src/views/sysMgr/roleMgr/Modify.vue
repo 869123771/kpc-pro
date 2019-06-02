@@ -6,11 +6,11 @@
                           :rules="{required: true}"
                           :messages="{required: '必填'}"
                 >
-                    <Input v-model="form.roleName"/>
+                    <Input v-model="form.roleName" class = "w-full"/>
                 </FormItem>
                 <FormItem label="角色描述" model="form.remark"
                 >
-                    <Input type="textarea" v-model="form.remark"/>
+                    <Input type="textarea" v-model="form.remark" class = "w-full"/>
                 </FormItem>
                 <FormItem label="权限选择" model="form.menuId"
                           :rules="tree.checkedKeys.length ? {} : {required: true}"
